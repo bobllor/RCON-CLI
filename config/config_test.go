@@ -29,7 +29,7 @@ func TestYamlRead(t *testing.T) {
 	err := writeYaml(dir)
 	assert.Nil(t, err)
 
-	b, err := ReadYaml(dir)
+	b, err := readYaml(dir)
 	assert.Nil(t, err)
 	assert.NotEqual(t, len(b), 0)
 }
@@ -40,10 +40,7 @@ func TestNewConfiguration(t *testing.T) {
 	err := writeYaml(dir)
 	assert.Nil(t, err)
 
-	b, err := ReadYaml(dir)
-	assert.Nil(t, err)
-
-	config, err := NewConfiguration(b)
+	config, err := NewConfiguration(dir)
 	assert.Nil(t, err)
 
 	rcon_one := testYamlFixture["rcons"].(map[string]map[string]any)["rcon 1"]
