@@ -1,13 +1,14 @@
 package config
 
 import (
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
 
 	"github.com/goccy/go-yaml"
 )
+
+const DEFAULT_YAML_NAME = "config.yml"
 
 type Configuration struct {
 	DefaultRcon string               `yaml:"default_rcon"`
@@ -22,19 +23,25 @@ type RconEntry struct {
 // NewConfiguration unmarshals the bytes into a Configuration struct.
 //
 // Root is the root path of where the configuration file is being held.
-//
-// An error can occur while attempting to read the root or file and if
+
+// The file must exist otherwise an os.ErrNotExist error will be returned.
+// Other errors can occur while attempting to read the root or file and if
 // the YAML parsing fails.
 func NewConfiguration(root string) (*Configuration, error) {
+	var config Configuration
+
 	b, err := readYaml(root)
 	if err != nil {
 		return nil, err
 	}
-
-	var config Configuration
 	unmarshalErr := yaml.Unmarshal(b, &config)
 	if unmarshalErr != nil {
 		return nil, err
+	}
+
+	// unmarshal overwrites it to nil if the map does not exist in the file
+	if config.RconEntries == nil {
+		config.RconEntries = make(map[string]RconEntry)
 	}
 
 	return &config, nil
@@ -43,17 +50,19 @@ func NewConfiguration(root string) (*Configuration, error) {
 // WriteFile writes the current data structure into the YAML path.
 //
 // All data in the original file will be overwritten if this is called.
-func (c *Configuration) WriteFile(filePath string) error {
+func (c *Configuration) WriteFile(root string) error {
 	b, err := yaml.Marshal(c)
 	if err != nil {
 		return err
 	}
 
-	return os.WriteFile(filePath, b, 0o600)
+	return os.WriteFile(filepath.Join(root, DEFAULT_YAML_NAME), b, 0o600)
 }
 
 // readYaml searches the root path for the configuration YAML file, reads the file,
 // and return the bytes.
+//
+// If the file cannot be found, a os.ErrNotExist error will be returned.
 //
 // This file must be named config followed by a YAML extension.
 // The extension can YAML or YML, case insensitive.
@@ -74,7 +83,7 @@ func readYaml(root string) ([]byte, error) {
 	}
 
 	if filePath == "" {
-		return nil, fmt.Errorf("config.yml does not exist in %s", root)
+		return nil, os.ErrNotExist
 	}
 
 	b, err := os.ReadFile(filePath)
