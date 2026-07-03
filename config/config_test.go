@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"testing"
@@ -35,23 +36,51 @@ func TestYamlRead(t *testing.T) {
 }
 
 func TestNewConfiguration(t *testing.T) {
-	dir := t.TempDir()
+	type testCase struct {
+		name      string
+		err       error
+		writeFile bool
+	}
 
-	err := writeYaml(dir)
-	assert.Nil(t, err)
+	cases := []testCase{
+		{
+			name:      "Normal run",
+			err:       nil,
+			writeFile: true,
+		},
+		{
+			name:      "File does not exist",
+			err:       os.ErrNotExist,
+			writeFile: false,
+		},
+	}
 
-	config, err := NewConfiguration(dir)
-	assert.Nil(t, err)
+	for _, c := range cases {
+		t.Run(c.name, func(t *testing.T) {
+			dir := t.TempDir()
+			if c.writeFile {
+				err := writeYaml(dir)
+				assert.Nil(t, err)
+			}
 
-	rcon_one := testYamlFixture["rcons"].(map[string]map[string]any)["rcon 1"]
-	rcon_two := testYamlFixture["rcons"].(map[string]map[string]any)["rcon 2"]
+			config, err := NewConfiguration(dir)
+			if c.err != nil {
+				assert.True(t, errors.Is(err, c.err))
+			} else {
+				assert.Nil(t, err)
 
-	assert.Equal(t, config.DefaultRcon, testYamlFixture["default_rcon"])
-	assert.Equal(t, config.RconEntries["rcon 1"].Address, rcon_one["address"])
-	assert.Equal(t, config.RconEntries["rcon 2"].Address, rcon_two["address"])
+				rcon_one := testYamlFixture["rcons"].(map[string]map[string]any)["rcon 1"]
+				rcon_two := testYamlFixture["rcons"].(map[string]map[string]any)["rcon 2"]
 
-	assert.Equal(t, config.RconEntries["rcon 1"].Password, rcon_one["password"])
-	assert.Equal(t, config.RconEntries["rcon 2"].Password, rcon_two["password"])
+				assert.Equal(t, config.DefaultRcon, testYamlFixture["default_rcon"])
+				assert.Equal(t, config.RconEntries["rcon 1"].Address, rcon_one["address"])
+				assert.Equal(t, config.RconEntries["rcon 2"].Address, rcon_two["address"])
+
+				assert.Equal(t, config.RconEntries["rcon 1"].Password, rcon_one["password"])
+				assert.Equal(t, config.RconEntries["rcon 2"].Password, rcon_two["password"])
+			}
+		})
+	}
 }
 
 // writeYaml writes the test yaml fixture to the given directory.
