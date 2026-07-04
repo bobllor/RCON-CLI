@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -59,6 +60,7 @@ func LoadConfigurationIfMissing(root string) (*Configuration, error) {
 		if writeErr != nil {
 			return nil, writeErr
 		}
+		fmt.Println("created config file")
 	} else if err != nil {
 		return nil, err
 	}
@@ -84,6 +86,17 @@ func (c *Configuration) EntryExist(entryName string) bool {
 	_, ok := c.RconEntries[entryName]
 
 	return ok
+}
+
+// AddEntry adds a new entry to the RconEntries map. This will overwrite
+// an existing entry.
+func (c *Configuration) AddEntry(entryName string, entry RconEntry) {
+	// sanity check
+	if c.RconEntries == nil {
+		c.RconEntries = make(map[string]RconEntry)
+	}
+
+	c.RconEntries[entryName] = entry
 }
 
 // readYaml searches the root path for the configuration YAML file, reads the file,
