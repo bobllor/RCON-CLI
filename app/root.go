@@ -1,7 +1,9 @@
 package app
 
 import (
+	"errors"
 	"fmt"
+	"os"
 	"strings"
 
 	"github.com/bobllor/rcon/config"
@@ -12,7 +14,7 @@ import (
 type RootCommand struct {
 	Cmd  *cobra.Command
 	Data RootData
-	Path *AppPath
+	Path AppPath
 }
 
 type RootData struct {
@@ -20,9 +22,18 @@ type RootData struct {
 }
 
 // NewRootCommand creates a new RootCommand and its initialization flags.
-func NewRootCommand(appPaths *AppPath) *RootCommand {
+func NewRootCommand(appPaths AppPath) *RootCommand {
 	cmd := &RootCommand{
-		Cmd:  &cobra.Command{Use: "mcron"},
+		Cmd: &cobra.Command{
+			Use: "mcron",
+			Args: func(cmd *cobra.Command, args []string) error {
+				if len(args) < 1 {
+					PrintFatalString("missing command arguments")
+				}
+
+				return nil
+			},
+		},
 		Data: RootData{},
 		Path: appPaths,
 	}
@@ -36,9 +47,6 @@ func NewRootCommand(appPaths *AppPath) *RootCommand {
 // RootRun is the main entry point for the root CMD. This will run
 // the execution of the command to the server.
 func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
-	if len(args) == 0 {
-		PrintFatalString("missing command arguments")
-	}
 	initErr := r.initEntry()
 	if initErr != nil {
 		PrintFatal(initErr)
@@ -73,10 +81,14 @@ func (r *RootCommand) RootInitFlags() {
 //
 // The entry will be mutated in place. If an error occurs, it will return an error.
 func (r *RootCommand) initEntry() error {
-	cfg, cfgErr := NewConfig(r.Path.Config)
+	// unlike the subcommands add and edit, this will
+	// this does not create a config file.
+	cfg, cfgErr := config.LoadConfiguration(r.Path.Config)
 	// no errors, will fall back to terminal if an error occurs
-	if cfgErr != nil {
-		fmt.Printf("failed to load config file: %v\n", cfgErr)
+	if errors.Is(cfgErr, os.ErrNotExist) {
+		fmt.Println("mcrcon config not found")
+	} else if cfgErr != nil {
+		return cfgErr
 	} else {
 		cfgEntry, ok := cfg.RconEntries[cfg.DefaultRcon]
 		if ok {
