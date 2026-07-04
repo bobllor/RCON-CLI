@@ -3,6 +3,7 @@ package app
 import (
 	"errors"
 	"fmt"
+	"net"
 	"os"
 	"path/filepath"
 
@@ -11,6 +12,7 @@ import (
 
 type App struct {
 	root *RootCommand
+	add  *AddCommand
 }
 
 type AppPath struct {
@@ -31,7 +33,7 @@ func Execute() {
 	}
 	configPath := filepath.Join(home, ".config", "mcrcon")
 
-	paths := &AppPath{
+	paths := AppPath{
 		Home:   home,
 		Config: configPath,
 	}
@@ -43,31 +45,20 @@ func Execute() {
 	}
 
 	rootCmd := NewRootCommand(paths)
+	addCmd := NewAddCommand(paths)
+
+	rootCmd.Cmd.AddCommand(addCmd.Cmd)
+
 	err = rootCmd.Cmd.Execute()
 	if err != nil {
 		PrintFatal(err)
 	}
 }
 
-// NewConfig creates a new Configuration for use by reading from the
-// given root for the config file.
-// If errors occur during the reading/parsing process, then it will return an
-// error.
+// initEntry initializes the entries if the values are empty. If the values
+// are not empty, then this will do nothing.
 //
-// The config file must be named config and end with a valid YAML extension.
-// It is case insenstive.
-func NewConfig(rootPath string) (*config.Configuration, error) {
-	cfg, err := config.NewConfiguration(rootPath)
-	if err != nil {
-		return nil, err
-	}
-
-	return cfg, nil
-}
-
-// initEntry initializes the entries if the values are empty.
-//
-// This does not validate the input.
+// This does not validate the input aside from empty string checks.
 func initEntry(entry *config.RconEntry) error {
 	if entry.Address == "" {
 		fmt.Print("Enter the RCON address: ")
@@ -78,6 +69,11 @@ func initEntry(entry *config.RconEntry) error {
 		if address == "" {
 			return errors.New("cannot have an empty RCON address")
 		}
+		addErr := validateAddress(address)
+		if addErr != nil {
+			return addErr
+		}
+
 		entry.Address = address
 	}
 
@@ -103,9 +99,38 @@ func validateEntry(entry config.RconEntry) error {
 	if entry.Address == "" {
 		return errors.New("cannot have an empty RCON address")
 	}
+	err := validateAddress(entry.Address)
+	if err != nil {
+		return err
+	}
 
 	if entry.Password == "" {
 		return errors.New("cannot have an empty RCON password")
+	}
+
+	return nil
+}
+
+// initRconName asks for the input of the name and returns the input.
+func initRconName() (string, error) {
+	fmt.Print(`Enter a unique RCON name identifier: `)
+	name, err := ReadInput()
+	if err != nil {
+		return "", err
+	}
+	if name == "" {
+		return "", errors.New("cannot have an empty RCON name identifier")
+	}
+
+	return name, nil
+}
+
+// validateAddress validates if the address string is a valid
+// address string.
+func validateAddress(address string) error {
+	_, _, err := net.SplitHostPort(address)
+	if err != nil {
+		return err
 	}
 
 	return nil
