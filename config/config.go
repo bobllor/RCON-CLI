@@ -1,6 +1,7 @@
 package config
 
 import (
+	"errors"
 	"os"
 	"path/filepath"
 	"strings"
@@ -20,14 +21,12 @@ type RconEntry struct {
 	Password string `yaml:"password"`
 }
 
-// NewConfiguration unmarshals the bytes into a Configuration struct.
+// LoadConfiguration loads the config file from the given root string.
 //
-// Root is the root path of where the configuration file is being held.
-
 // The file must exist otherwise an os.ErrNotExist error will be returned.
 // Other errors can occur while attempting to read the root or file and if
 // the YAML parsing fails.
-func NewConfiguration(root string) (*Configuration, error) {
+func LoadConfiguration(root string) (*Configuration, error) {
 	var config Configuration
 
 	b, err := readYaml(root)
@@ -47,6 +46,26 @@ func NewConfiguration(root string) (*Configuration, error) {
 	return &config, nil
 }
 
+// LoadConfigurationIfMissing loads the config file from the given root string.
+//
+// This is a wrapper around LoadConfiguration, but instead the file is created if
+// it does not exist.
+func LoadConfigurationIfMissing(root string) (*Configuration, error) {
+	var config Configuration
+
+	_, err := os.Stat(filepath.Join(root, DEFAULT_YAML_NAME))
+	if errors.Is(err, os.ErrNotExist) {
+		writeErr := config.WriteFile(root)
+		if writeErr != nil {
+			return nil, writeErr
+		}
+	} else if err != nil {
+		return nil, err
+	}
+
+	return LoadConfiguration(root)
+}
+
 // WriteFile writes the current data structure into the YAML path.
 //
 // All data in the original file will be overwritten if this is called.
@@ -57,6 +76,14 @@ func (c *Configuration) WriteFile(root string) error {
 	}
 
 	return os.WriteFile(filepath.Join(root, DEFAULT_YAML_NAME), b, 0o600)
+}
+
+// EntryExist checks for the existence of the entry in the RCON entries map.
+// It will return true if the entryName exists, otherwise it false.
+func (c *Configuration) EntryExist(entryName string) bool {
+	_, ok := c.RconEntries[entryName]
+
+	return ok
 }
 
 // readYaml searches the root path for the configuration YAML file, reads the file,
