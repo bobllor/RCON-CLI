@@ -22,21 +22,25 @@ func PrintFatalString(msg string) {
 }
 
 // readInput reads the STDIN and returns the given input.
+//
+// Spaces are automatically trimmed.
 func ReadInput() (string, error) {
 	reader := bufio.NewReader(os.Stdin)
 
-	address, err := reader.ReadString('\n')
+	inp, err := reader.ReadString('\n')
 	if err != nil {
 		return "", err
 	}
 
-	address = strings.TrimSpace(address)
+	inp = strings.TrimSpace(inp)
 
-	return address, nil
+	return inp, nil
 }
 
 // readInputHidden reads the STDIN with a hidden input and
 // returns the given input.
+//
+// Spaces are automatically trimmed.
 func ReadInputHidden() (string, error) {
 	b, err := term.ReadPassword(0)
 	if err != nil {
