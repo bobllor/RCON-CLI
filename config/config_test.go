@@ -63,7 +63,7 @@ func TestNewConfiguration(t *testing.T) {
 				assert.Nil(t, err)
 			}
 
-			config, err := NewConfiguration(dir)
+			config, err := LoadConfiguration(dir)
 			if c.err != nil {
 				assert.True(t, errors.Is(err, c.err))
 			} else {
@@ -81,6 +81,17 @@ func TestNewConfiguration(t *testing.T) {
 			}
 		})
 	}
+}
+
+func TestNewConfigurationMkFile(t *testing.T) {
+	dir := t.TempDir()
+
+	cfg, err := LoadConfigurationIfMissing(dir)
+	assert.Nil(t, err)
+	assert.NotNil(t, cfg)
+
+	_, err = os.Stat(filepath.Join(dir, DEFAULT_YAML_NAME))
+	assert.Nil(t, err)
 }
 
 // writeYaml writes the test yaml fixture to the given directory.
