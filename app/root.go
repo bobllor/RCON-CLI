@@ -90,9 +90,11 @@ func (r *RootCommand) initEntry() error {
 	} else if cfgErr != nil {
 		return cfgErr
 	} else {
-		cfgEntry, ok := cfg.RconEntries[cfg.DefaultRcon]
-		if ok {
-			r.Data.Entry = cfgEntry
+		if cfg.DefaultRcon != "" {
+			cfgEntry, ok := cfg.RconEntries[cfg.DefaultRcon]
+			if ok {
+				r.Data.Entry = cfgEntry
+			}
 		}
 	}
 
