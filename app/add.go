@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -41,17 +42,18 @@ func NewAddCommand(appPaths AppPath) *AddCommand {
 		Path: appPaths,
 	}
 
-	cmd.Cmd.Run = cmd.AddRun
+	cmd.Cmd.Run = cmd.Run
+	cmd.Cmd.PreRunE = cmd.PreRunE
 	cmd.AddInitFlags()
 
 	return cmd
 }
 
-func (ac *AddCommand) AddRun(cmd *cobra.Command, args []string) {
+// Run is the main entry point of the AddCommand. It adds a new entry
+// to the config.
+func (ac *AddCommand) Run(cmd *cobra.Command, args []string) {
+	// enables space in entries
 	if len(args) > 0 {
-		if strings.TrimSpace(ac.Data.Name) != "" {
-			PrintFatalString("cannot have entry args and use the -n flag")
-		}
 		ac.Data.Name = strings.Join(args, " ")
 	}
 	err := ac.initData()
@@ -89,6 +91,15 @@ func (ac *AddCommand) AddRun(cmd *cobra.Command, args []string) {
 	if ac.Data.SetDefault {
 		fmt.Printf(`Set RCON entry %s as the default entry%s`, ac.Data.Name, "\n")
 	}
+}
+
+// PreRunE validates data prior to Run.
+func (ac *AddCommand) PreRunE(cobra *cobra.Command, args []string) error {
+	if len(args) > 0 && strings.TrimSpace(ac.Data.Name) != "" {
+		return errors.New("cannot have entry args and use the -n name flag")
+	}
+
+	return nil
 }
 
 func (ac *AddCommand) AddInitFlags() {
