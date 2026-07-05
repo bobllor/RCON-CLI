@@ -135,3 +135,22 @@ func validateAddress(address string) error {
 
 	return nil
 }
+
+// loadConfiguration loads the configuration and returns a new Configuration.
+//
+// If the file does not exist, it will return a zeroed Configuration.
+func loadConfiguration(root string) (*config.Configuration, error) {
+	cfg := config.NewConfiguration()
+
+	loadedCfg, cfgErr := config.LoadConfiguration(root)
+	// no errors, will fall back to terminal if an error occurs
+	if errors.Is(cfgErr, os.ErrNotExist) {
+		fmt.Println("mcrcon config not found")
+	} else if cfgErr != nil {
+		return nil, cfgErr
+	} else {
+		return loadedCfg, nil
+	}
+
+	return cfg, nil
+}
