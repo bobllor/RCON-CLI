@@ -46,8 +46,10 @@ func Execute() {
 
 	rootCmd := NewRootCommand(paths)
 	addCmd := NewAddCommand(paths)
+	listCmd := NewListCommand(paths)
 
 	rootCmd.Cmd.AddCommand(addCmd.Cmd)
+	rootCmd.Cmd.AddCommand(listCmd.Cmd)
 
 	err = rootCmd.Cmd.Execute()
 	if err != nil {
