@@ -68,6 +68,14 @@ func LoadConfigurationIfMissing(root string) (*Configuration, error) {
 	return LoadConfiguration(root)
 }
 
+// NewConfiguration creates a new Configuraton struct with
+// zeroed values.
+func NewConfiguration() *Configuration {
+	return &Configuration{
+		RconEntries: make(map[string]RconEntry),
+	}
+}
+
 // WriteFile writes the current data structure into the YAML path.
 //
 // All data in the original file will be overwritten if this is called.
