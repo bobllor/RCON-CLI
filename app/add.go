@@ -8,6 +8,7 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// AddCommand is used to handle adding new RCON entries into the configuration.
 type AddCommand struct {
 	Cmd  *cobra.Command
 	Path AppPath
@@ -18,15 +19,15 @@ type AddData struct {
 	// Name is the RCON name entry. This must be unique, but can be overwritten
 	// with a flag.
 	Name string
-	// Entry is the RCON entry data used to connect to and communicate to RCON.
+	// Entry is the RCON entry data used to connect and communicate to RCON.
 	Entry config.RconEntry
 	// Overwrite is used to overwrite an existing RCON entry in the
 	// configuration file. If an entry does not exist, then this will do
 	// nothing.
 	Overwrite bool
 	// SetDefault is used to set the new RCON entry as the default RCON entry.
-	// This is primarily used with the root command, where it will instead use
-	// the existing entry by default.
+	// The default RCON is used when running a command, it will automatically
+	// run the command to this default RCON.
 	SetDefault bool
 }
 
