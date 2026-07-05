@@ -72,7 +72,7 @@ func (lc *ListCommand) Run(cmd *cobra.Command, args []string) {
 // InitFlags initializes the flags for the command.
 func (lc *ListCommand) InitFlags() {
 	lc.Cmd.Flags().StringVarP(&lc.Data.Target, "target", "t", "", "Display info of a target RCON entry")
-	lc.Cmd.Flags().BoolVar(&lc.Data.ShowPassword, "show-password", false, "Shows the password of a target RCON entry")
+	lc.Cmd.Flags().BoolVar(&lc.Data.ShowPassword, "show-password", false, "Shows the password of RCON entries")
 }
 
 func (lc *ListCommand) PreRunE(cmd *cobra.Command, args []string) error {
