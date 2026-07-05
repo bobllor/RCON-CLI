@@ -94,6 +94,18 @@ func TestNewConfigurationMkFile(t *testing.T) {
 	assert.Nil(t, err)
 }
 
+func TestYamlWrite(t *testing.T) {
+	dir := t.TempDir()
+
+	cfg, err := LoadConfigurationIfMissing(dir)
+	assert.Nil(t, err)
+
+	cfg.AddEntry("new entry", RconEntry{Address: "12345:555", Password: "12345"})
+
+	err = cfg.WriteFile(dir)
+	assert.Nil(t, err)
+}
+
 // writeYaml writes the test yaml fixture to the given directory.
 // It will automatically write it as config.yml.
 //

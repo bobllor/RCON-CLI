@@ -53,14 +53,15 @@ func LoadConfiguration(root string) (*Configuration, error) {
 // it does not exist.
 func LoadConfigurationIfMissing(root string) (*Configuration, error) {
 	var config Configuration
+	path := filepath.Join(root, DEFAULT_YAML_NAME)
 
-	_, err := os.Stat(filepath.Join(root, DEFAULT_YAML_NAME))
+	_, err := os.Stat(path)
 	if errors.Is(err, os.ErrNotExist) {
 		writeErr := config.WriteFile(root)
 		if writeErr != nil {
 			return nil, writeErr
 		}
-		fmt.Println("created config file")
+		fmt.Printf("Created configuration file at %s\n", path)
 	} else if err != nil {
 		return nil, err
 	}
@@ -85,7 +86,20 @@ func (c *Configuration) WriteFile(root string) error {
 		return err
 	}
 
-	return os.WriteFile(filepath.Join(root, DEFAULT_YAML_NAME), b, 0o600)
+	tempFi, err := os.CreateTemp(root, ".*config.swp")
+	if err != nil {
+		return err
+	}
+
+	_, err = tempFi.Write(b)
+	if err != nil {
+		return err
+	}
+	defer tempFi.Close()
+
+	path := tempFi.Name()
+
+	return os.Rename(path, filepath.Join(root, DEFAULT_YAML_NAME))
 }
 
 // EntryExist checks for the existence of the entry in the RCON entries map.
@@ -99,12 +113,38 @@ func (c *Configuration) EntryExist(entryName string) bool {
 // AddEntry adds a new entry to the RconEntries map. This will overwrite
 // an existing entry.
 func (c *Configuration) AddEntry(entryName string, entry RconEntry) {
+	c.entryNilCheck()
+
+	c.RconEntries[entryName] = entry
+}
+
+// DeleteEntry deletes an entry from the RconEntries map. If the entry
+// does not exist, then it will do nothing.
+//
+// If the given entry is also the default entry, then the default entry is
+// reset to an empty string.
+//
+// It will return true or false depending on if the key exists.
+func (c *Configuration) DeleteEntry(entryName string) bool {
+	c.entryNilCheck()
+
+	_, ok := c.RconEntries[entryName]
+	delete(c.RconEntries, entryName)
+
+	if c.DefaultRcon == entryName {
+		c.DefaultRcon = ""
+	}
+
+	return ok
+}
+
+// entryNilCheck checks if the entry map is nil. If it is, then it will initialize
+// a new map. If it aready exists, then this does nothing.
+func (c *Configuration) entryNilCheck() {
 	// sanity check
 	if c.RconEntries == nil {
 		c.RconEntries = make(map[string]RconEntry)
 	}
-
-	c.RconEntries[entryName] = entry
 }
 
 // readYaml searches the root path for the configuration YAML file, reads the file,
