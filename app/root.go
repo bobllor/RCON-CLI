@@ -1,6 +1,7 @@
 package app
 
 import (
+	"errors"
 	"fmt"
 	"strings"
 
@@ -34,9 +35,10 @@ func NewRootCommand(appPaths AppPath) *RootCommand {
 	cmd := &RootCommand{
 		Cmd: &cobra.Command{
 			Use: "mcron",
+			// required due to subcommands changing arg parsing rules
 			Args: func(cmd *cobra.Command, args []string) error {
 				if len(args) < 1 {
-					PrintFatalString("missing command arguments")
+					return errors.New("must have at least one argument")
 				}
 
 				return nil
