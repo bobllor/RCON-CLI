@@ -31,7 +31,7 @@ func Execute() {
 	mkErr := utils.MkdirAll(configPath)
 	// errors will not exit
 	if mkErr != nil {
-		fmt.Fprintf(os.Stderr, "encountered failures while making folders: %v\n", mkErr)
+		fmt.Fprintf(os.Stderr, "failed to make files: %v\n", mkErr)
 	}
 
 	rootCmd := root.NewRootCommand(paths)
