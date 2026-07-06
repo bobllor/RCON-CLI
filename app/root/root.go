@@ -1,10 +1,12 @@
-package app
+package root
 
 import (
 	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/bobllor/rcon/app/types"
+	"github.com/bobllor/rcon/app/utils"
 	"github.com/bobllor/rcon/config"
 	"github.com/bobllor/rcon/rcon"
 	"github.com/spf13/cobra"
@@ -20,7 +22,7 @@ import (
 type RootCommand struct {
 	Cmd  *cobra.Command
 	Data RootData
-	Path AppPath
+	Path types.AppPath
 }
 
 type RootData struct {
@@ -31,10 +33,11 @@ type RootData struct {
 }
 
 // NewRootCommand creates a new RootCommand and its initialization flags.
-func NewRootCommand(appPaths AppPath) *RootCommand {
+func NewRootCommand(appPaths types.AppPath) *RootCommand {
 	cmd := &RootCommand{
 		Cmd: &cobra.Command{
-			Use: "mcron",
+			Use:   "mcron [args] [flags]",
+			Short: "Execute a command with RCON",
 			// required due to subcommands changing arg parsing rules
 			Args: func(cmd *cobra.Command, args []string) error {
 				if len(args) < 1 {
@@ -58,9 +61,9 @@ func NewRootCommand(appPaths AppPath) *RootCommand {
 // the execution of the command to the server.
 func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 	// this does not create a cfg file.
-	cfg, cfgErr := loadConfiguration(r.Path.Config)
+	cfg, cfgErr := utils.LoadConfiguration(r.Path.Config)
 	if cfgErr != nil {
-		PrintFatal(cfgErr)
+		utils.PrintFatal(cfgErr)
 	} else {
 		if cfg.DefaultRcon != "" {
 			cfgEntry, ok := cfg.RconEntries[cfg.DefaultRcon]
@@ -80,23 +83,23 @@ func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 
 	initErr := r.initEntry()
 	if initErr != nil {
-		PrintFatal(initErr)
+		utils.PrintFatal(initErr)
 	}
 
 	con, err := rcon.NewRcon(r.Data.Entry.Address)
 	if err != nil {
-		PrintFatal(err)
+		utils.PrintFatal(err)
 	}
 
 	loginErr := con.Authenticate(r.Data.Entry.Password)
 	if loginErr != nil {
-		PrintFatal(loginErr)
+		utils.PrintFatal(loginErr)
 	}
 
 	command := strings.Join(args, " ")
 	cmdErr := con.Command(command)
 	if cmdErr != nil {
-		PrintFatal(cmdErr)
+		utils.PrintFatal(cmdErr)
 	}
 
 	fmt.Println("Executed command")
@@ -114,12 +117,12 @@ func (r *RootCommand) RootInitFlags() {
 //
 // The entry will be mutated in place. If an error occurs, it will return an error.
 func (r *RootCommand) initEntry() error {
-	err := initEntry(&r.Data.Entry)
+	err := utils.InitEntry(&r.Data.Entry)
 	if err != nil {
 		return err
 	}
 
-	validErr := validateEntry(r.Data.Entry)
+	validErr := utils.ValidateEntry(r.Data.Entry)
 	if validErr != nil {
 		return validErr
 	}

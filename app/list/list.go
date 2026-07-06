@@ -1,4 +1,4 @@
-package app
+package list
 
 import (
 	"errors"
@@ -6,13 +6,15 @@ import (
 	"slices"
 	"strings"
 
+	"github.com/bobllor/rcon/app/types"
+	"github.com/bobllor/rcon/app/utils"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
 
 type ListCommand struct {
 	Cmd  *cobra.Command
-	Path AppPath
+	Path types.AppPath
 	Data ListData
 }
 
@@ -21,7 +23,7 @@ type ListData struct {
 	ShowPassword bool
 }
 
-func NewListCommand(paths AppPath) *ListCommand {
+func NewListCommand(paths types.AppPath) *ListCommand {
 	listCmd := &ListCommand{
 		Cmd: &cobra.Command{
 			Use:   "list [entry] [flags]",
@@ -41,7 +43,7 @@ func NewListCommand(paths AppPath) *ListCommand {
 func (lc *ListCommand) Run(cmd *cobra.Command, args []string) {
 	cfg, err := config.LoadConfigurationIfMissing(lc.Path.Config)
 	if err != nil {
-		PrintFatal(err)
+		utils.PrintFatal(err)
 	}
 
 	if lc.Data.Target == "" && len(args) < 1 {

@@ -1,18 +1,21 @@
-package app
+package add
 
 import (
 	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/bobllor/rcon/app/types"
+	"github.com/bobllor/rcon/app/utils"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
 
-// AddCommand is used to handle adding new RCON entries into the configuration.
+// AddCommand is the subcommand used to handle adding new RCON entries
+// into the configuration.
 type AddCommand struct {
 	Cmd  *cobra.Command
-	Path AppPath
+	Path types.AppPath
 	Data AddData
 }
 
@@ -32,7 +35,7 @@ type AddData struct {
 	SetDefault bool
 }
 
-func NewAddCommand(appPaths AppPath) *AddCommand {
+func NewAddCommand(appPaths types.AppPath) *AddCommand {
 	cmd := &AddCommand{
 		Cmd: &cobra.Command{
 			Use:   "add [entry] [flags]",
@@ -58,18 +61,18 @@ func (ac *AddCommand) Run(cmd *cobra.Command, args []string) {
 	}
 	err := ac.initData()
 	if err != nil {
-		PrintFatal(err)
+		utils.PrintFatal(err)
 	}
 
 	cfg, err := config.LoadConfigurationIfMissing(ac.Path.Config)
 	if err != nil {
-		PrintFatal(err)
+		utils.PrintFatal(err)
 	}
 
 	if !ac.Data.Overwrite {
 		exist := cfg.EntryExist(ac.Data.Name)
 		if exist {
-			PrintFatal(fmt.Errorf(`RCON entry "%s" already exists`, ac.Data.Name))
+			utils.PrintFatal(fmt.Errorf(`RCON entry "%s" already exists`, ac.Data.Name))
 		}
 	}
 	if ac.Data.SetDefault {
@@ -79,7 +82,7 @@ func (ac *AddCommand) Run(cmd *cobra.Command, args []string) {
 	cfg.AddEntry(ac.Data.Name, ac.Data.Entry)
 	writeErr := cfg.WriteFile(ac.Path.Config)
 	if writeErr != nil {
-		PrintFatal(writeErr)
+		utils.PrintFatal(writeErr)
 	}
 
 	// below are only used for stdout to the end user
@@ -114,7 +117,7 @@ func (ac *AddCommand) AddInitFlags() {
 // initData initializes and validates the AddCommand data.
 func (ac *AddCommand) initData() error {
 	if strings.TrimSpace(ac.Data.Name) == "" {
-		name, nameErr := initRconName()
+		name, nameErr := utils.InitRconName()
 		if nameErr != nil {
 			return nameErr
 		}
@@ -122,12 +125,12 @@ func (ac *AddCommand) initData() error {
 		ac.Data.Name = name
 	}
 
-	initErr := initEntry(&ac.Data.Entry)
+	initErr := utils.InitEntry(&ac.Data.Entry)
 	if initErr != nil {
 		return initErr
 	}
 
-	validErr := validateEntry(ac.Data.Entry)
+	validErr := utils.ValidateEntry(ac.Data.Entry)
 	if validErr != nil {
 		return validErr
 	}

@@ -1,20 +1,24 @@
-package app
+package remove
 
 import (
 	"errors"
 	"fmt"
 	"strings"
 
+	"github.com/bobllor/rcon/app/types"
+	"github.com/bobllor/rcon/app/utils"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
 
+// RemoveCommand is the subcommand that handles removing RCON entries
+// from the configuration.
 type RemoveCommand struct {
 	Cmd  *cobra.Command
-	Path AppPath
+	Path types.AppPath
 }
 
-func NewRemoveCommand(paths AppPath) *RemoveCommand {
+func NewRemoveCommand(paths types.AppPath) *RemoveCommand {
 	cmd := &RemoveCommand{
 		Cmd: &cobra.Command{
 			Use:   "rm [entry...]",
@@ -32,7 +36,7 @@ func NewRemoveCommand(paths AppPath) *RemoveCommand {
 func (dc *RemoveCommand) Run(cmd *cobra.Command, args []string) {
 	cfg, err := config.LoadConfigurationIfMissing(dc.Path.Config)
 	if err != nil {
-		PrintFatal(err)
+		utils.PrintFatal(err)
 	}
 	var hasDeleted bool
 
@@ -51,7 +55,7 @@ func (dc *RemoveCommand) Run(cmd *cobra.Command, args []string) {
 	if hasDeleted {
 		err := cfg.WriteFile(dc.Path.Config)
 		if err != nil {
-			PrintFatal(err)
+			utils.PrintFatal(err)
 		}
 	}
 
