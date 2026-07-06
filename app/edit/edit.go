@@ -64,12 +64,11 @@ func (ec *EditCommand) Run(cmd *cobra.Command, args []string) {
 	currEntry := cfg.RconEntries[target]
 
 	if cmd.Flag("name").Changed {
-		if cfg.EntryExist(ec.Data.Name) {
-			utils.PrintFatalString(fmt.Sprintf("%s already exists as an entry, no changes were made", ec.Data.Name))
+		err := ec.handleEditRconName(target, ec.Data.Name, cfg)
+		if err != nil {
+			utils.PrintFatal(err)
 		}
 
-		// gets added as a new entry
-		cfg.DeleteEntry(target)
 		target = ec.Data.Name
 	}
 
@@ -78,20 +77,12 @@ func (ec *EditCommand) Run(cmd *cobra.Command, args []string) {
 	}
 
 	if cmd.Flag("password").Changed {
-		if ec.Data.Password == "-" {
-			fmt.Print("Enter the new RCON password: ")
-			pw, err := utils.ReadInputHidden()
-			if err != nil {
-				utils.PrintFatal(err)
-			}
-			err = utils.ValidatePassword(pw)
-			if err != nil {
-				utils.PrintFatal(err)
-			}
-
-			ec.Data.Password = pw
+		pw, err := ec.handleEditPassword(ec.Data.Password)
+		if err != nil {
+			utils.PrintFatal(err)
 		}
-		currEntry.Password = ec.Data.Password
+
+		currEntry.Password = pw
 	}
 
 	if cmd.Flag("default").Changed {
@@ -99,7 +90,6 @@ func (ec *EditCommand) Run(cmd *cobra.Command, args []string) {
 	}
 
 	cfg.AddEntry(target, currEntry)
-
 	err = cfg.WriteFile(ec.Path.Config)
 	if err != nil {
 		utils.PrintFatal(err)
@@ -116,4 +106,48 @@ func (ec *EditCommand) InitFlags() {
 	ec.Cmd.Flags().BoolVar(&ec.Data.NewDefault, "default", false, "Set the RCON entry as the new default entry")
 
 	ec.Cmd.MarkFlagsOneRequired("address", "password", "name", "default")
+}
+
+// handleEditRconName handles deleting the entry of the RCON target string.
+// Prior to updating the configuration, it will validate the new name.
+func (ec *EditCommand) handleEditRconName(target string, newName string, cfg *config.Configuration) error {
+	if cfg.EntryExist(newName) {
+		return fmt.Errorf("%s already exists as an entry, no changes were made", ec.Data.Name)
+	}
+
+	// gets added as a new entry at the end of the command
+	cfg.DeleteEntry(target)
+	if cfg.DefaultRcon == target {
+		cfg.DefaultRcon = ""
+	}
+
+	return nil
+}
+
+// handleEditPassword handles the password change. The given password value will
+// be validated. Upon success, it will return the original password value.
+//
+// If the password is the character "-", then it will trigger an interactive prompt
+// for the password.
+func (ec *EditCommand) handleEditPassword(pwValue string) (string, error) {
+	err := utils.ValidatePassword(pwValue)
+	if err != nil {
+		return "", err
+	}
+
+	if pwValue == "-" {
+		fmt.Print("Enter the new RCON password: ")
+		pw, err := utils.ReadInputHidden()
+		if err != nil {
+			return "", err
+		}
+		err = utils.ValidatePassword(pw)
+		if err != nil {
+			return "", err
+		}
+
+		pwValue = pw
+	}
+
+	return pwValue, nil
 }
