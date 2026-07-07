@@ -19,8 +19,8 @@ type ListCommand struct {
 }
 
 type ListData struct {
-	Target       string
 	ShowPassword bool
+	ShowDefault  bool
 }
 
 func NewListCommand(paths types.AppPath) *ListCommand {
@@ -46,7 +46,7 @@ func (lc *ListCommand) Run(cmd *cobra.Command, args []string) {
 		utils.PrintFatal(err)
 	}
 
-	if lc.Data.Target == "" && len(args) < 1 {
+	if len(args) < 1 && !lc.Data.ShowDefault {
 		str := lc.listAllString(cfg)
 
 		fmt.Println("RCON Entry -> RCON Address")
@@ -54,11 +54,12 @@ func (lc *ListCommand) Run(cmd *cobra.Command, args []string) {
 	} else {
 		targets := []string{}
 
-		// both are not included. PreRunE prevents this
-		if lc.Data.Target != "" {
-			targets = append(targets, lc.Data.Target)
+		// already handled in PreRunE but for sanity check
+		if lc.Data.ShowDefault {
+			targets = append(targets, cfg.DefaultRcon)
+		} else {
+			targets = append(targets, args...)
 		}
-		targets = append(targets, args...)
 
 		targetStrings := []string{}
 		for _, target := range targets {
@@ -73,13 +74,13 @@ func (lc *ListCommand) Run(cmd *cobra.Command, args []string) {
 
 // InitFlags initializes the flags for the command.
 func (lc *ListCommand) InitFlags() {
-	lc.Cmd.Flags().StringVarP(&lc.Data.Target, "target", "t", "", "Display info of a target RCON entry")
 	lc.Cmd.Flags().BoolVar(&lc.Data.ShowPassword, "show-password", false, "Shows the password of RCON entries")
+	lc.Cmd.Flags().BoolVar(&lc.Data.ShowDefault, "default", false, "Show the default RCON entry")
 }
 
 func (lc *ListCommand) PreRunE(cmd *cobra.Command, args []string) error {
-	if lc.Data.Target != "" && len(args) > 0 {
-		return errors.New("cannot have entry args and use the -t flag")
+	if len(args) > 0 && lc.Data.ShowDefault {
+		return errors.New("flag --default must be used with no additional arguments")
 	}
 
 	return nil
