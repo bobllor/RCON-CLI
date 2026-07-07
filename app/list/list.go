@@ -56,6 +56,10 @@ func (lc *ListCommand) Run(cmd *cobra.Command, args []string) {
 
 		// already handled in PreRunE but for sanity check
 		if lc.Data.ShowDefault {
+			if cfg.DefaultRcon == "" {
+				fmt.Println("No default RCON entry found")
+				return
+			}
 			targets = append(targets, cfg.DefaultRcon)
 		} else {
 			targets = append(targets, args...)
