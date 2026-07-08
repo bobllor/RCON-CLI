@@ -10,6 +10,7 @@ import (
 	"github.com/bobllor/rcon/app/list"
 	"github.com/bobllor/rcon/app/remove"
 	"github.com/bobllor/rcon/app/root"
+	"github.com/bobllor/rcon/app/run"
 	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
 )
@@ -40,11 +41,13 @@ func Execute() {
 	listCmd := list.NewListCommand(paths)
 	rmCmd := remove.NewRemoveCommand(paths)
 	editCmd := edit.NewEditCommand(paths)
+	runCmd := run.NewRunCommand(paths)
 
 	rootCmd.Cmd.AddCommand(addCmd.Cmd)
 	rootCmd.Cmd.AddCommand(listCmd.Cmd)
 	rootCmd.Cmd.AddCommand(rmCmd.Cmd)
 	rootCmd.Cmd.AddCommand(editCmd.Cmd)
+	rootCmd.Cmd.AddCommand(runCmd.Cmd)
 
 	// errors are handled with PrintFatal in the commands
 	rootCmd.Cmd.Execute()
