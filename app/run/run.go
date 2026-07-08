@@ -92,6 +92,7 @@ func (rc *RunCommand) Run(cmd *cobra.Command, args []string) {
 	if err != nil {
 		utils.PrintFatal(err)
 	}
+	defer con.Close()
 
 	err = con.Authenticate(rc.Data.Entry.Password)
 	if err != nil {
@@ -100,12 +101,16 @@ func (rc *RunCommand) Run(cmd *cobra.Command, args []string) {
 
 	command := strings.Join(args, " ")
 
-	err = con.Command(command)
+	cmdRes, err := con.Command(command)
 	if err != nil {
 		utils.PrintFatal(err)
 	}
 
-	fmt.Println("Command sent")
+	if strings.TrimSpace(cmdRes) == "" {
+		cmdRes = "Command executed"
+	}
+
+	fmt.Println(cmdRes)
 }
 
 func (rc *RunCommand) InitFlags() {
