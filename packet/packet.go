@@ -34,7 +34,7 @@ type PacketType string
 const (
 	PacketLogin   PacketType = "LOGIN"
 	PacketCommand PacketType = "COMMAND"
-	PacketMulti   PacketType = "MULTI"
+	PacketMulti   PacketType = "MULTI" // also used for the server response
 )
 
 // NewRequestId generates a new int32 request ID.
