@@ -90,6 +90,7 @@ func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 	if err != nil {
 		utils.PrintFatal(err)
 	}
+	defer con.Close()
 
 	loginErr := con.Authenticate(r.Data.Entry.Password)
 	if loginErr != nil {
@@ -97,12 +98,16 @@ func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 	}
 
 	command := strings.Join(args, " ")
-	cmdErr := con.Command(command)
+	cmdRes, cmdErr := con.Command(command)
 	if cmdErr != nil {
 		utils.PrintFatal(cmdErr)
 	}
 
-	fmt.Println("Executed command")
+	if strings.TrimSpace(cmdRes) == "" {
+		cmdRes = "Command executed"
+	}
+
+	fmt.Println(cmdRes)
 }
 
 func (r *RootCommand) RootInitFlags() {
