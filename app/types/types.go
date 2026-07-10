@@ -7,4 +7,6 @@ type AppPath struct {
 	Config string
 	// Log is the path where logging is stored in.
 	Log string
+	// Runtime is the path for files created during the program's runtime.
+	Runtime string
 }

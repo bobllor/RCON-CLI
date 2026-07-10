@@ -23,16 +23,22 @@ func Execute() {
 		home = "."
 	}
 	configPath := filepath.Join(home, ".config", "mcrcon")
+	runtimePath := filepath.Join(home, ".local", "share", "gorcon")
 
 	paths := types.AppPath{
-		Home:   home,
-		Config: configPath,
+		Home:    home,
+		Config:  configPath,
+		Runtime: runtimePath,
 	}
 
 	mkErr := utils.MkdirAll(configPath)
 	// errors will not exit
 	if mkErr != nil {
-		fmt.Fprintf(os.Stderr, "failed to make files: %v\n", mkErr)
+		fmt.Fprintf(os.Stderr, "failed to make files %s: %v\n", configPath, mkErr)
+	}
+	mkErr = utils.MkdirAll(paths.Runtime)
+	if mkErr != nil {
+		fmt.Fprintf(os.Stderr, "failed to make files %s: %v\n", runtimePath, mkErr)
 	}
 
 	rootCmd := root.NewRootCommand(paths)
