@@ -26,6 +26,9 @@ type RootCommand struct {
 }
 
 type RootData struct {
+	// Entry is the RCON entry information. By default it will be empty values, but
+	// will be populated by an existing entry found in the config file. If not found
+	// or the values remain empty, the program will go into interactive mode.
 	Entry config.RconEntry
 	// Target is the target RCON entry to send the command to. This
 	// will overwrite the default RCON entry.
@@ -73,11 +76,13 @@ func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	// target will overwrite the default
+	// target will overwrite the default if it exists
 	if r.Data.Target != "" {
 		cfgEntry, ok := cfg.RconEntries[r.Data.Target]
 		if ok {
 			r.Data.Entry = cfgEntry
+		} else {
+			utils.PrintFatal(fmt.Errorf("RCON entry target %s is not found", r.Data.Target))
 		}
 	}
 
@@ -124,7 +129,7 @@ func (r *RootCommand) Args(cmd *cobra.Command, args []string) error {
 
 // PreRunE is used to validate the certain data prior to running the command.
 func (r *RootCommand) PreRunE(cmd *cobra.Command, args []string) error {
-	if strings.TrimSpace(r.Data.Command) == "" {
+	if strings.TrimSpace(r.Data.Command) == "" && len(args) < 1 {
 		return errors.New("cannot have an empty command")
 	}
 
