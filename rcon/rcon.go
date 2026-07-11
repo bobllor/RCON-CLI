@@ -45,7 +45,7 @@ func (r *Rcon) Authenticate(password string) error {
 		return err
 	}
 	if res.RequestId == -1 {
-		return errors.New("Failed to authenticate")
+		return ErrAuthFail
 	}
 
 	return nil
