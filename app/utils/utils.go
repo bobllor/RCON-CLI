@@ -100,6 +100,8 @@ func InitRconName() (string, error) {
 // are not empty, then this will do nothing.
 //
 // This does not validate the input aside from empty string checks.
+//
+// If the password entry contains a "-", then it will prompt for an input.
 func InitEntry(entry *config.RconEntry) error {
 	if entry.Address == "" {
 		fmt.Print("Enter the RCON address: ")
@@ -118,7 +120,7 @@ func InitEntry(entry *config.RconEntry) error {
 		entry.Address = address
 	}
 
-	if entry.Password == "" {
+	if entry.Password == "" || entry.Password == "-" {
 		fmt.Print("Enter the RCON password: ")
 		pw, err := ReadInputHidden()
 		if err != nil {
