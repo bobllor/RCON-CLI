@@ -102,9 +102,9 @@ func (c *Configuration) WriteFile(root string) error {
 	return os.Rename(path, filepath.Join(root, DEFAULT_YAML_NAME))
 }
 
-// EntryExist checks for the existence of the entry in the RCON entries map.
+// HasEntry checks for the existence of the entry in the RCON entries map.
 // It will return true if the entryName exists, otherwise it false.
-func (c *Configuration) EntryExist(entryName string) bool {
+func (c *Configuration) HasEntry(entryName string) bool {
 	_, ok := c.RconEntries[entryName]
 
 	return ok

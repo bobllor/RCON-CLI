@@ -70,7 +70,7 @@ func (ac *AddCommand) Run(cmd *cobra.Command, args []string) {
 	}
 
 	if !ac.Data.Overwrite {
-		exist := cfg.EntryExist(ac.Data.Name)
+		exist := cfg.HasEntry(ac.Data.Name)
 		if exist {
 			utils.PrintFatal(fmt.Errorf(`RCON entry "%s" already exists`, ac.Data.Name))
 		}

@@ -115,7 +115,7 @@ func (ec *EditCommand) runNormal(cfg *config.Configuration, cmd *cobra.Command, 
 
 	updates := []string{}
 
-	if !cfg.EntryExist(target) {
+	if !cfg.HasEntry(target) {
 		return nil, fmt.Errorf("entry %s does not exist", target)
 	}
 
@@ -160,7 +160,7 @@ func (ec *EditCommand) runNormal(cfg *config.Configuration, cmd *cobra.Command, 
 // handleEditRconName handles deleting the entry of the RCON target string.
 // Prior to updating the configuration, it will validate the new name.
 func (ec *EditCommand) handleEditRconName(target string, newName string, cfg *config.Configuration) error {
-	if cfg.EntryExist(newName) {
+	if cfg.HasEntry(newName) {
 		return fmt.Errorf("%s already exists as an entry, no changes were made", ec.Data.Name)
 	}
 	if strings.TrimSpace(newName) == "" {
