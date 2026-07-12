@@ -32,3 +32,8 @@ func RemoveFiles(paths ...string) error {
 
 	return nil
 }
+
+type ConnReader interface {
+	Read(p []byte) (int, error)
+	Close() error
+}
