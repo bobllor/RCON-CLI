@@ -24,6 +24,13 @@ func PrintFatalString(msg string) {
 	os.Exit(1)
 }
 
+// PrintFatalf prints the format string and its args
+// and calls os.Exit(1).
+func PrintFatalf(format string, a ...any) {
+	fmt.Fprintf(os.Stderr, format+"\n", a...)
+	os.Exit(1)
+}
+
 // readInput reads the STDIN and returns the given input.
 //
 // Spaces are automatically trimmed.
