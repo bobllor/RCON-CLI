@@ -24,15 +24,22 @@ func ReadPID(path string) (int, error) {
 }
 
 // RemoveFiles removes the given file paths. Directories are not supported.
-func RemoveFiles(paths ...string) error {
+//
+// A slice of errors will be returned or nil if no errors occurred.
+func RemoveFiles(paths ...string) []error {
+	errs := []error{}
 	for _, path := range paths {
 		err := os.Remove(path)
 		if err != nil {
-			return err
+			errs = append(errs, err)
 		}
 	}
 
-	return nil
+	if len(errs) == 0 {
+		return nil
+	}
+
+	return errs
 }
 
 // CheckProcessRunning checks the process if it is running or not. It will
