@@ -6,15 +6,15 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
 
 type ListCommand struct {
 	Cmd  *cobra.Command
-	Path types.AppPath
+	Path paths.AppPath
 	Data ListData
 }
 
@@ -23,7 +23,7 @@ type ListData struct {
 	ShowDefault  bool
 }
 
-func NewListCommand(paths types.AppPath) *ListCommand {
+func NewListCommand(paths paths.AppPath) *ListCommand {
 	listCmd := &ListCommand{
 		Cmd: &cobra.Command{
 			Use:   "list [entry] [flags]",

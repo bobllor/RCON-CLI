@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +15,7 @@ import (
 // into the configuration.
 type AddCommand struct {
 	Cmd  *cobra.Command
-	Path types.AppPath
+	Path paths.AppPath
 	Data AddData
 }
 
@@ -35,7 +35,7 @@ type AddData struct {
 	SetDefault bool
 }
 
-func NewAddCommand(appPaths types.AppPath) *AddCommand {
+func NewAddCommand(appPaths paths.AppPath) *AddCommand {
 	cmd := &AddCommand{
 		Cmd: &cobra.Command{
 			Use:   "add [entry] [flags]",

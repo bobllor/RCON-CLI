@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
@@ -14,7 +14,7 @@ import (
 type EditCommand struct {
 	Cmd  *cobra.Command
 	Data EditData
-	Path types.AppPath
+	Path paths.AppPath
 }
 
 type EditData struct {
@@ -25,7 +25,7 @@ type EditData struct {
 	RemoveDefault bool
 }
 
-func NewEditCommand(paths types.AppPath) *EditCommand {
+func NewEditCommand(paths paths.AppPath) *EditCommand {
 	cmd := EditCommand{
 		Cmd: &cobra.Command{
 			Use:   "edit [entry] [flags]",

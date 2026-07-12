@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/bobllor/rcon/rcon"
 	"github.com/spf13/cobra"
@@ -22,7 +22,7 @@ import (
 type RootCommand struct {
 	Cmd  *cobra.Command
 	Data RootData
-	Path types.AppPath
+	Path paths.AppPath
 }
 
 type RootData struct {
@@ -39,7 +39,7 @@ type RootData struct {
 }
 
 // NewRootCommand creates a new RootCommand and its initialization flags.
-func NewRootCommand(appPaths types.AppPath) *RootCommand {
+func NewRootCommand(appPaths paths.AppPath) *RootCommand {
 	cmd := &RootCommand{
 		Cmd: &cobra.Command{
 			Use:   "mcron [args] [flags]",

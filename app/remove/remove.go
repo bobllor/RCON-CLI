@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
@@ -15,10 +15,10 @@ import (
 // from the configuration.
 type RemoveCommand struct {
 	Cmd  *cobra.Command
-	Path types.AppPath
+	Path paths.AppPath
 }
 
-func NewRemoveCommand(paths types.AppPath) *RemoveCommand {
+func NewRemoveCommand(paths paths.AppPath) *RemoveCommand {
 	cmd := &RemoveCommand{
 		Cmd: &cobra.Command{
 			Use:   "rm [entry...]",
