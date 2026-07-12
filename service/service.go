@@ -3,6 +3,7 @@ package service
 import (
 	"bytes"
 	"net"
+	"strings"
 	"time"
 
 	"github.com/bobllor/rcon/rcon"
@@ -67,6 +68,12 @@ func (r *RconListener) handleConnection(conn net.Conn, rconn *rcon.Rcon) {
 	res, err := rconn.Command(string(buf))
 	if err != nil {
 		return
+	}
+
+	errIndex := strings.Index(res, "error")
+	if errIndex != -1 {
+		errLength := errIndex + len("error")
+		res = res[:errLength] + "\n" + res[errLength:]
 	}
 
 	_, err = conn.Write([]byte(res))
