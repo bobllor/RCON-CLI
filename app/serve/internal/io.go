@@ -2,7 +2,9 @@ package internal
 
 import (
 	"os"
+	"runtime"
 	"strconv"
+	"syscall"
 )
 
 // ReadPID reads the given path for the PID file.
@@ -33,7 +35,24 @@ func RemoveFiles(paths ...string) error {
 	return nil
 }
 
-type ConnReader interface {
-	Read(p []byte) (int, error)
-	Close() error
+// CheckProcessRunning checks the process if it is running or not. It will
+// return true if the process is running.
+//
+// This handles both Unix and Windows.
+func CheckProcessRunning(pid int) bool {
+	p, err := os.FindProcess(pid)
+	if err != nil {
+		// i think windows will error out. error could be returned if yes.
+		// if that is the case then this should be false. for now test it out.
+		return false
+	}
+
+	if runtime.GOOS == "linux" || runtime.GOOS == "darwin" {
+		err = p.Signal(syscall.Signal(0))
+		if err != nil {
+			return false
+		}
+	}
+
+	return true
 }
