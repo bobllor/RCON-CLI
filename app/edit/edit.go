@@ -28,7 +28,7 @@ type EditData struct {
 func NewEditCommand(paths paths.AppPath) *EditCommand {
 	cmd := EditCommand{
 		Cmd: &cobra.Command{
-			Use:   "edit [entry] [flags]",
+			Use:   "edit <entry> [flags]",
 			Short: "Edit the values of a RCON entry",
 			Args: func(cmd *cobra.Command, args []string) error {
 				// following conditions:

@@ -174,7 +174,7 @@ func LoadConfiguration(root string) (*config.Configuration, error) {
 	loadedCfg, cfgErr := config.LoadConfiguration(root)
 	// no errors, will fall back to terminal if an error occurs
 	if errors.Is(cfgErr, os.ErrNotExist) {
-		fmt.Println("mcrcon config not found")
+		fmt.Println("rcon config not found")
 	} else if cfgErr != nil {
 		return nil, cfgErr
 	} else {

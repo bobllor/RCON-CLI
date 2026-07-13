@@ -26,7 +26,7 @@ type ExecData struct {
 func NewExecCommand(addr string) *ExecCommand {
 	cmd := &ExecCommand{
 		Cmd: &cobra.Command{
-			Use:   "exec [commands]",
+			Use:   "exec <command>...",
 			Short: "Execute a command on a running RCON service",
 		},
 		data: ExecData{

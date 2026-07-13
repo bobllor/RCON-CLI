@@ -27,6 +27,7 @@ func NewStopCommand(addr, pidFile string, appPaths paths.AppPath) *StopCommand {
 		Cmd: &cobra.Command{
 			Use:   "stop",
 			Short: "Stop the RCON service",
+			Args:  cobra.NoArgs,
 		},
 		Path: appPaths,
 		data: StopData{

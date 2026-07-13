@@ -42,7 +42,7 @@ type RootData struct {
 func NewRootCommand(appPaths paths.AppPath) *RootCommand {
 	cmd := &RootCommand{
 		Cmd: &cobra.Command{
-			Use:   "mcron [args] [flags]",
+			Use:   "rcon <args>... [flags]",
 			Short: "Execute a command with RCON",
 		},
 		Data: RootData{},

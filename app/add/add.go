@@ -38,7 +38,7 @@ type AddData struct {
 func NewAddCommand(appPaths paths.AppPath) *AddCommand {
 	cmd := &AddCommand{
 		Cmd: &cobra.Command{
-			Use:   "add [entry] [flags]",
+			Use:   "add [entry]... [flags]",
 			Short: "Add a new RCON entry",
 			Long:  "Add a new RCON entry into the configuration",
 		},

@@ -62,7 +62,7 @@ having a valid default RCON entry.`
 func NewIpcStartCommand(addr, pidFile string, paths paths.AppPath) *IpcStartCommand {
 	cmd := &IpcStartCommand{
 		Cmd: &cobra.Command{
-			Use:   "start",
+			Use:   "start [flags]",
 			Short: "Starts the RCON service in the background",
 			Long:  usageTemplate,
 			Args:  cobra.NoArgs,
@@ -266,7 +266,7 @@ func (isc *IpcStartCommand) serviceRun(entry config.RconEntry) error {
 
 	_, err := fi.Stat()
 	if err != nil {
-		processErr.SetError("Must run mcrcon serve start")
+		processErr.SetError("Must run rcon serve start")
 
 		return processErr.ToError()
 	}
