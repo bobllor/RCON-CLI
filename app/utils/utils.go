@@ -24,6 +24,13 @@ func PrintFatalString(msg string) {
 	os.Exit(1)
 }
 
+// PrintFatalf prints the format string and its args
+// and calls os.Exit(1).
+func PrintFatalf(format string, a ...any) {
+	fmt.Fprintf(os.Stderr, format+"\n", a...)
+	os.Exit(1)
+}
+
 // readInput reads the STDIN and returns the given input.
 //
 // Spaces are automatically trimmed.
@@ -93,6 +100,8 @@ func InitRconName() (string, error) {
 // are not empty, then this will do nothing.
 //
 // This does not validate the input aside from empty string checks.
+//
+// If the password entry contains a "-", then it will prompt for an input.
 func InitEntry(entry *config.RconEntry) error {
 	if entry.Address == "" {
 		fmt.Print("Enter the RCON address: ")
@@ -111,7 +120,7 @@ func InitEntry(entry *config.RconEntry) error {
 		entry.Address = address
 	}
 
-	if entry.Password == "" {
+	if entry.Password == "" || entry.Password == "-" {
 		fmt.Print("Enter the RCON password: ")
 		pw, err := ReadInputHidden()
 		if err != nil {
@@ -165,7 +174,7 @@ func LoadConfiguration(root string) (*config.Configuration, error) {
 	loadedCfg, cfgErr := config.LoadConfiguration(root)
 	// no errors, will fall back to terminal if an error occurs
 	if errors.Is(cfgErr, os.ErrNotExist) {
-		fmt.Println("mcrcon config not found")
+		fmt.Println("rcon config not found")
 	} else if cfgErr != nil {
 		return nil, cfgErr
 	} else {

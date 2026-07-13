@@ -6,15 +6,15 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
 
 type ListCommand struct {
 	Cmd  *cobra.Command
-	Path types.AppPath
+	Path paths.AppPath
 	Data ListData
 }
 
@@ -23,10 +23,10 @@ type ListData struct {
 	ShowDefault  bool
 }
 
-func NewListCommand(paths types.AppPath) *ListCommand {
+func NewListCommand(paths paths.AppPath) *ListCommand {
 	listCmd := &ListCommand{
 		Cmd: &cobra.Command{
-			Use:   "list [entry] [flags]",
+			Use:   "list [entry]... [flags]",
 			Short: "Lists RCON entries and its information",
 		},
 		Path: paths,
@@ -104,6 +104,10 @@ func (lc *ListCommand) listAllString(cfg *config.Configuration) string {
 		} else {
 			entries = append(entries, str)
 		}
+	}
+
+	if len(entries) == 0 {
+		entries = append(entries, "No entries found, to add an entry run the command: rcon add")
 	}
 
 	return strings.Join(entries, "\n")

@@ -10,44 +10,51 @@ import (
 	"github.com/bobllor/rcon/app/list"
 	"github.com/bobllor/rcon/app/remove"
 	"github.com/bobllor/rcon/app/root"
-	"github.com/bobllor/rcon/app/run"
-	"github.com/bobllor/rcon/app/types"
-	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/serve"
+	"github.com/bobllor/rcon/app/utils/files"
+	"github.com/bobllor/rcon/app/utils/paths"
 )
 
 // Execute is the main entry point of the root and its children. It will create a new
-// App struct and use it for the rest of the info.
+// App struct and use it for the rest of the command.
 func Execute() {
 	home, err := os.UserHomeDir()
 	if err != nil {
 		home = "."
 	}
-	configPath := filepath.Join(home, ".config", "mcrcon")
+	configPath := filepath.Join(home, paths.ConfigPathRel)
+	runtimePath := filepath.Join(home, paths.RuntimePathRel)
+	logPath := filepath.Join(home, paths.LogPathRel)
 
-	paths := types.AppPath{
-		Home:   home,
-		Config: configPath,
+	appPaths := paths.AppPath{
+		Home:    home,
+		Config:  configPath,
+		Runtime: runtimePath,
+		Log:     logPath,
 	}
 
-	mkErr := utils.MkdirAll(configPath)
-	// errors will not exit
-	if mkErr != nil {
-		fmt.Fprintf(os.Stderr, "failed to make files: %v\n", mkErr)
+	errs := appPaths.MkdirAll()
+	for _, err := range errs {
+		fmt.Fprintln(os.Stderr, err)
 	}
 
-	rootCmd := root.NewRootCommand(paths)
+	rootCmd := root.NewRootCommand(appPaths)
 
-	addCmd := add.NewAddCommand(paths)
-	listCmd := list.NewListCommand(paths)
-	rmCmd := remove.NewRemoveCommand(paths)
-	editCmd := edit.NewEditCommand(paths)
-	runCmd := run.NewRunCommand(paths)
+	addCmd := add.NewAddCommand(appPaths)
+	listCmd := list.NewListCommand(appPaths)
+	rmCmd := remove.NewRemoveCommand(appPaths)
+	editCmd := edit.NewEditCommand(appPaths)
+
+	socketAddr := filepath.Join(appPaths.Runtime, files.SocketFile)
+	pidPath := filepath.Join(appPaths.Runtime, files.PidFile)
+
+	serveCmd := serve.NewServeCommand(socketAddr, pidPath, appPaths)
 
 	rootCmd.Cmd.AddCommand(addCmd.Cmd)
 	rootCmd.Cmd.AddCommand(listCmd.Cmd)
 	rootCmd.Cmd.AddCommand(rmCmd.Cmd)
 	rootCmd.Cmd.AddCommand(editCmd.Cmd)
-	rootCmd.Cmd.AddCommand(runCmd.Cmd)
+	rootCmd.Cmd.AddCommand(serveCmd.Cmd)
 
 	// errors are handled with PrintFatal in the commands
 	rootCmd.Cmd.Execute()

@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
@@ -15,7 +15,7 @@ import (
 // into the configuration.
 type AddCommand struct {
 	Cmd  *cobra.Command
-	Path types.AppPath
+	Path paths.AppPath
 	Data AddData
 }
 
@@ -35,10 +35,10 @@ type AddData struct {
 	SetDefault bool
 }
 
-func NewAddCommand(appPaths types.AppPath) *AddCommand {
+func NewAddCommand(appPaths paths.AppPath) *AddCommand {
 	cmd := &AddCommand{
 		Cmd: &cobra.Command{
-			Use:   "add [entry] [flags]",
+			Use:   "add [entry]... [flags]",
 			Short: "Add a new RCON entry",
 			Long:  "Add a new RCON entry into the configuration",
 		},
@@ -70,7 +70,7 @@ func (ac *AddCommand) Run(cmd *cobra.Command, args []string) {
 	}
 
 	if !ac.Data.Overwrite {
-		exist := cfg.EntryExist(ac.Data.Name)
+		exist := cfg.HasEntry(ac.Data.Name)
 		if exist {
 			utils.PrintFatal(fmt.Errorf(`RCON entry "%s" already exists`, ac.Data.Name))
 		}

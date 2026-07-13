@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/spf13/cobra"
 )
@@ -14,7 +14,7 @@ import (
 type EditCommand struct {
 	Cmd  *cobra.Command
 	Data EditData
-	Path types.AppPath
+	Path paths.AppPath
 }
 
 type EditData struct {
@@ -25,10 +25,10 @@ type EditData struct {
 	RemoveDefault bool
 }
 
-func NewEditCommand(paths types.AppPath) *EditCommand {
+func NewEditCommand(paths paths.AppPath) *EditCommand {
 	cmd := EditCommand{
 		Cmd: &cobra.Command{
-			Use:   "edit [entry] [flags]",
+			Use:   "edit <entry> [flags]",
 			Short: "Edit the values of a RCON entry",
 			Args: func(cmd *cobra.Command, args []string) error {
 				// following conditions:
@@ -115,7 +115,7 @@ func (ec *EditCommand) runNormal(cfg *config.Configuration, cmd *cobra.Command, 
 
 	updates := []string{}
 
-	if !cfg.EntryExist(target) {
+	if !cfg.HasEntry(target) {
 		return nil, fmt.Errorf("entry %s does not exist", target)
 	}
 
@@ -160,7 +160,7 @@ func (ec *EditCommand) runNormal(cfg *config.Configuration, cmd *cobra.Command, 
 // handleEditRconName handles deleting the entry of the RCON target string.
 // Prior to updating the configuration, it will validate the new name.
 func (ec *EditCommand) handleEditRconName(target string, newName string, cfg *config.Configuration) error {
-	if cfg.EntryExist(newName) {
+	if cfg.HasEntry(newName) {
 		return fmt.Errorf("%s already exists as an entry, no changes were made", ec.Data.Name)
 	}
 	if strings.TrimSpace(newName) == "" {

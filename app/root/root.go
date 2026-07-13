@@ -5,8 +5,8 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/bobllor/rcon/app/types"
 	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
 	"github.com/bobllor/rcon/rcon"
 	"github.com/spf13/cobra"
@@ -22,36 +22,39 @@ import (
 type RootCommand struct {
 	Cmd  *cobra.Command
 	Data RootData
-	Path types.AppPath
+	Path paths.AppPath
 }
 
 type RootData struct {
+	// Entry is the RCON entry information. By default it will be empty values, but
+	// will be populated by an existing entry found in the config file. If not found
+	// or the values remain empty, the program will go into interactive mode.
 	Entry config.RconEntry
 	// Target is the target RCON entry to send the command to. This
 	// will overwrite the default RCON entry.
 	Target string
+	// Command is the command to send. Command and args cannot be used together,
+	// and will return an error.
+	Command string
 }
 
 // NewRootCommand creates a new RootCommand and its initialization flags.
-func NewRootCommand(appPaths types.AppPath) *RootCommand {
+func NewRootCommand(appPaths paths.AppPath) *RootCommand {
 	cmd := &RootCommand{
 		Cmd: &cobra.Command{
-			Use:   "mcron [args] [flags]",
+			Use:   "rcon <args>... [flags]",
 			Short: "Execute a command with RCON",
-			// required due to subcommands changing arg parsing rules
-			Args: func(cmd *cobra.Command, args []string) error {
-				if len(args) < 1 {
-					return errors.New("must have at least one argument")
-				}
-
-				return nil
-			},
 		},
 		Data: RootData{},
 		Path: appPaths,
 	}
 
 	cmd.Cmd.Run = cmd.RootRun
+	cmd.Cmd.CompletionOptions.DisableDefaultCmd = true
+	// required due to subcommands changing arg parsing rules
+	cmd.Cmd.Args = cmd.Args
+	cmd.Cmd.PreRunE = cmd.PreRunE
+
 	cmd.RootInitFlags()
 
 	return cmd
@@ -73,11 +76,13 @@ func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 		}
 	}
 
-	// target will overwrite the default
+	// target will overwrite the default if it exists
 	if r.Data.Target != "" {
 		cfgEntry, ok := cfg.RconEntries[r.Data.Target]
 		if ok {
 			r.Data.Entry = cfgEntry
+		} else {
+			utils.PrintFatal(fmt.Errorf("RCON entry target %s is not found", r.Data.Target))
 		}
 	}
 
@@ -110,11 +115,33 @@ func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 	fmt.Println(cmdRes)
 }
 
+// Args is the function used to check the arguments and certain flags.
+func (r *RootCommand) Args(cmd *cobra.Command, args []string) error {
+	if len(args) < 1 && r.Data.Command == "" {
+		return errors.New("must have at least one argument")
+	}
+	if len(args) > 0 && r.Data.Command != "" {
+		return errors.New("cannot use -c/--command flag and have arguments")
+	}
+
+	return nil
+}
+
+// PreRunE is used to validate the certain data prior to running the command.
+func (r *RootCommand) PreRunE(cmd *cobra.Command, args []string) error {
+	if strings.TrimSpace(r.Data.Command) == "" && len(args) < 1 {
+		return errors.New("cannot have an empty command")
+	}
+
+	return nil
+}
+
 func (r *RootCommand) RootInitFlags() {
 	r.Cmd.Flags().StringVarP(&r.Data.Entry.Address, "address", "a", "", "RCON address")
 	r.Cmd.Flags().StringVarP(&r.Data.Entry.Password, "password", "p", "", "RCON password")
 
 	r.Cmd.Flags().StringVarP(&r.Data.Target, "target", "t", "", "RCON entry target to run the command on")
+	r.Cmd.Flags().StringVarP(&r.Data.Command, "command", "c", "", "The command to send via RCON")
 }
 
 // InitEntry initializes the RCON entry and validates it. If the data is already
