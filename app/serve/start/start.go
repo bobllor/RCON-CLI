@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"os/exec"
+	"strings"
 	"syscall"
 	"time"
 
@@ -53,12 +54,17 @@ type IpcStartData struct {
 }
 
 const internalFlag = "internal-bg-service"
+const usageTemplate = `Starts the RCON service in the background.
+
+This requires an RCON entry to exist, either given with the target or 
+having a valid default RCON entry.`
 
 func NewIpcStartCommand(addr, pidFile string, paths paths.AppPath) *IpcStartCommand {
 	cmd := &IpcStartCommand{
 		Cmd: &cobra.Command{
 			Use:   "start",
-			Short: "Starts the IPC RCON service",
+			Short: "Starts the RCON service in the background",
+			Long:  usageTemplate,
 			Args:  cobra.NoArgs,
 		},
 		data: IpcStartData{
@@ -69,6 +75,8 @@ func NewIpcStartCommand(addr, pidFile string, paths paths.AppPath) *IpcStartComm
 	}
 
 	cmd.Cmd.Run = cmd.Run
+	cmd.Cmd.PreRunE = cmd.PreRunE
+
 	cmd.initFlags()
 
 	// not meant to be used by the user. this is ran with os.Exec
@@ -78,21 +86,53 @@ func NewIpcStartCommand(addr, pidFile string, paths paths.AppPath) *IpcStartComm
 	return cmd
 }
 
+// Run is the main entry to the start subcommand.
 func (isc *IpcStartCommand) Run(cmd *cobra.Command, args []string) {
 	cfg, err := config.LoadConfigurationIfMissing(isc.Path.Config)
 	if err != nil {
 		utils.PrintFatal(err)
 	}
-	var entry config.RconEntry
+
+	var entry *config.RconEntry
+	var target string
 	if cfg.DefaultRcon != "" {
-		entry = cfg.RconEntries[cfg.DefaultRcon]
+		if cfg.HasEntry(cfg.DefaultRcon) {
+			cfgEntry := cfg.RconEntries[cfg.DefaultRcon]
+			entry = &cfgEntry
+
+			target = cfg.DefaultRcon
+		}
+	} else if cfg.DefaultRcon == "" || !cfg.HasEntry(cfg.DefaultRcon) {
+		fmt.Println("No default RCON entry found in config")
 	}
 
+	// overwrites default RCON
 	if isc.data.Target != "" {
+		if cfg.HasEntry(isc.data.Target) {
+			cfgEntry := cfg.RconEntries[isc.data.Target]
 
+			entry = &cfgEntry
+			target = isc.data.Target
+		} else {
+			// due to this overwriting the default entry, it will exit
+			// if not found.
+			utils.PrintFatalf("Entry %s is not found", isc.data.Target)
+		}
 	}
 
-	isc.runProcess(entry)
+	if entry == nil {
+		utils.PrintFatalString("No entry found")
+	}
+
+	isc.runProcess(target, *entry)
+}
+
+func (isc *IpcStartCommand) PreRunE(cmd *cobra.Command, args []string) error {
+	if strings.TrimSpace(isc.data.Target) == "" && cmd.Flag("target").Changed {
+		return errors.New("cannot have an empty RCON target entry")
+	}
+
+	return nil
 }
 
 // runProcess is the main method of the command. It is responsible for starting the service by using
@@ -105,13 +145,13 @@ func (isc *IpcStartCommand) Run(cmd *cobra.Command, args []string) {
 //
 // It will not return errors, instead it will exit if errors occur. This is due to the IPC
 // processes.
-func (isc *IpcStartCommand) runProcess(entry config.RconEntry) {
+func (isc *IpcStartCommand) runProcess(rconTarget string, entry config.RconEntry) {
 	// NOTE: this gets most edge cases except a major one:
 	//	- service running -> rcon file missing; previous service will remain open.
 	isc.checkAndRemoveStaleService(isc.data.PidFile, isc.data.Address)
 
 	if !isc.data.StartService {
-		err := isc.initRun()
+		err := isc.initRun(rconTarget)
 		if err != nil {
 			utils.PrintFatal(err)
 		}
@@ -133,11 +173,20 @@ func (isc *IpcStartCommand) runProcess(entry config.RconEntry) {
 //   - Write PID to a file on the disk
 //
 // After the command is started, any errors will remove the created files.
-func (isc *IpcStartCommand) initRun() error {
-	execCmd := exec.Command(os.Args[0], "serve", "start", "--"+internalFlag, "--duration", fmt.Sprintf("%d", isc.data.Duration))
+func (isc *IpcStartCommand) initRun(rconTarget string) error {
+	execCmd := exec.Command(
+		os.Args[0],
+		"serve",
+		"start",
+		"--"+internalFlag,
+		"--duration",
+		fmt.Sprintf("%d", isc.data.Duration),
+		"--target",
+		rconTarget,
+	)
 	execCmd.Stderr = os.Stderr
 	// only used for debugging
-	execCmd.Stdout = os.Stdout
+	// execCmd.Stdout = os.Stdout
 
 	pipeR, pipeW, err := os.Pipe()
 	if err != nil {
@@ -146,6 +195,8 @@ func (isc *IpcStartCommand) initRun() error {
 	defer pipeW.Close()
 	defer pipeR.Close()
 
+	// TODO: need to find an alternative to this for windows that also supports unix
+	// for now windows is not supported until this can be resolved.
 	execCmd.ExtraFiles = []*os.File{pipeW}
 
 	err = execCmd.Start()
@@ -162,8 +213,8 @@ func (isc *IpcStartCommand) initRun() error {
 	}
 
 	if data.OK {
-		fmt.Printf("Starting RCON service (%d)\n", execCmd.Process.Pid)
-		err := isc.initWritePid(execCmd)
+		fmt.Printf("Starting RCON service (%s: %d)\n", rconTarget, execCmd.Process.Pid)
+		err := isc.initRunWritePid(execCmd)
 		if err != nil {
 			return err
 		}
@@ -172,9 +223,11 @@ func (isc *IpcStartCommand) initRun() error {
 	return nil
 }
 
-// initWritePid writes the PID file to the disk. If it fails to write to the disk,
+// initRunWritePid writes the PID file to the disk. If it fails to write to the disk,
 // it will kill the process, remove the files, and return an error.
-func (isc *IpcStartCommand) initWritePid(cmd *exec.Cmd) error {
+//
+// This should only be called in initRun.
+func (isc *IpcStartCommand) initRunWritePid(cmd *exec.Cmd) error {
 	err := isc.writeFile(isc.data.PidFile, fmt.Appendf([]byte{}, "%d", cmd.Process.Pid))
 	if err != nil {
 		internal.RemoveFiles(isc.data.PidFile, isc.data.Address)
@@ -254,7 +307,7 @@ func (isc *IpcStartCommand) serviceRun(entry config.RconEntry) error {
 		errReturn := errors.New(err.Error())
 
 		if errors.Is(err, rcon.ErrAuthFail) {
-			processErr.SetErrorf("Failed to authenticate RCON: password is incorrect (%s)", entry.Address)
+			processErr.SetErrorf("Failed to authenticate RCON: password is incorrect")
 			errReturn = processErr.ToError()
 		}
 
@@ -310,4 +363,6 @@ func (isc *IpcStartCommand) checkAndRemoveStaleService(pidFile string, addr stri
 func (isc *IpcStartCommand) initFlags() {
 	isc.Cmd.Flags().BoolVar(&isc.data.StartService, internalFlag, false, "Runs the IPC service in the background")
 	isc.Cmd.Flags().IntVar(&isc.data.Duration, "duration", 5, "The service duration uptime in minutes")
+
+	isc.Cmd.Flags().StringVarP(&isc.data.Target, "target", "t", "", "The target RCON entry to start the service on")
 }
