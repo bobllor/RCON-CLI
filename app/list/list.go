@@ -106,6 +106,10 @@ func (lc *ListCommand) listAllString(cfg *config.Configuration) string {
 		}
 	}
 
+	if len(entries) == 0 {
+		entries = append(entries, "No entries found, to add an entry run the command: rcon add")
+	}
+
 	return strings.Join(entries, "\n")
 }
 
