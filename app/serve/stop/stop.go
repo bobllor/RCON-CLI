@@ -41,7 +41,6 @@ func NewStopCommand(addr, pidFile string, appPaths paths.AppPath) *StopCommand {
 }
 
 func (sc *StopCommand) Run(cmd *cobra.Command, args []string) {
-	// TODO: temp value, will be shared later
 	pid, err := internal.ReadPID(sc.data.PidFile)
 	if errors.Is(err, os.ErrNotExist) {
 		utils.PrintFatalString("RCON service is not running")
