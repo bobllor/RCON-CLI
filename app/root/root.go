@@ -93,19 +93,19 @@ func (r *RootCommand) RootRun(cmd *cobra.Command, args []string) {
 
 	con, err := rcon.NewRcon(r.Data.Entry.Address)
 	if err != nil {
-		utils.PrintFatal(err)
+		utils.PrintFatalf("Failed to establish connection: %v", err)
 	}
 	defer con.Close()
 
 	loginErr := con.Authenticate(r.Data.Entry.Password)
 	if loginErr != nil {
-		utils.PrintFatal(loginErr)
+		utils.PrintFatalf("Failed to authenticate: %v", loginErr)
 	}
 
-	command := strings.Join(args, " ")
+	command := r.getCommandString(args)
 	cmdRes, cmdErr := con.Command(command)
 	if cmdErr != nil {
-		utils.PrintFatal(cmdErr)
+		utils.PrintFatalf("Failed to run command: %v", cmdErr)
 	}
 
 	if strings.TrimSpace(cmdRes) == "" {
@@ -142,6 +142,19 @@ func (r *RootCommand) RootInitFlags() {
 
 	r.Cmd.Flags().StringVarP(&r.Data.Target, "target", "t", "", "RCON entry target to run the command on")
 	r.Cmd.Flags().StringVarP(&r.Data.Command, "command", "c", "", "The command to send via RCON")
+}
+
+// getCommandString retrieves the command string. It handles
+// both the flag and the args.
+func (r *RootCommand) getCommandString(args []string) string {
+	var command string
+	if r.Data.Command != "" {
+		command = r.Data.Command
+	} else {
+		command = strings.Join(args, " ")
+	}
+
+	return command
 }
 
 // InitEntry initializes the RCON entry and validates it. If the data is already
