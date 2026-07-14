@@ -59,7 +59,7 @@ func (ec *ExecCommand) Run(cmd *cobra.Command, args []string) {
 
 	b, err := io.ReadAll(con)
 	if errors.Is(err, os.ErrDeadlineExceeded) {
-		utils.PrintFatalString("Timed out waiting for command response")
+		utils.PrintFatalString("Timed out waiting for command response (7s)")
 	}
 	if err != nil {
 		utils.PrintFatal(err)

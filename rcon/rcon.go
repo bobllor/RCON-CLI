@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/binary"
 	"errors"
+	"io"
 	"net"
 	"time"
 
@@ -34,8 +35,8 @@ func (r *Rcon) Authenticate(password string) error {
 		return err
 	}
 
-	writeErr := r.write(payload)
-	if writeErr != nil {
+	err = r.write(payload)
+	if err != nil {
 		return err
 	}
 
@@ -63,8 +64,8 @@ func (r *Rcon) Command(command string) (string, error) {
 		return "", err
 	}
 
-	writeErr := r.write(payload)
-	if writeErr != nil {
+	err = r.write(payload)
+	if err != nil {
 		return "", err
 	}
 
@@ -106,6 +107,9 @@ func (r *Rcon) read() (*packet.Packet, error) {
 	// if bugs occur good luck. TODO: add logging buddy
 	_, err := r.Conn.Read(res)
 	if err != nil {
+		if errors.Is(err, io.EOF) {
+			return nil, errors.New("remote server closed the connection")
+		}
 		return nil, err
 	}
 
