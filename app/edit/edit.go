@@ -94,7 +94,7 @@ func (ec *EditCommand) Run(cmd *cobra.Command, args []string) {
 func (ec *EditCommand) InitFlags() {
 	ec.Cmd.Flags().StringVarP(&ec.Data.Address, "address", "a", "", "The new address of the RCON entry")
 	ec.Cmd.Flags().StringVarP(&ec.Data.Password, "password", "p", "", "The new password of the RCON entry")
-	ec.Cmd.Flags().StringVar(&ec.Data.Name, "name", "", "The new name of the RCON entry")
+	ec.Cmd.Flags().StringVarP(&ec.Data.Name, "name", "n", "", "The new name of the RCON entry")
 
 	ec.Cmd.Flags().BoolVar(&ec.Data.NewDefault, "default", false, "Set the RCON entry as the new default entry")
 	ec.Cmd.Flags().BoolVar(&ec.Data.RemoveDefault, "rm-default", false, "Removes the target from the default entry")
