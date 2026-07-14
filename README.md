@@ -19,7 +19,7 @@ To jump straight to how to execute commands for both modes:
 # What is Service Mode?
 
 Service mode creates an authenticated RCON client in the background. This client
-listens for incoming commands to send to the RCON client.
+listens for incoming commands to send to the server.
 
 The mode addresses an issue that direct mode does not do: *authenticating once and reusing the connection*.
 This removes the TCP handshake overhead for sending each command due to reauthentication.
@@ -236,6 +236,9 @@ rcon serve stop
 kill -15 PID_HERE
 kill -9 PID_HERE
 ```
+
+It is recommended to use the built-in `rcon serve stop`, as it has clean up functionality
+in the removal of the service.
 
 
 ### Executing Service Mode Commands
