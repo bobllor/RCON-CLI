@@ -95,7 +95,7 @@ func (c *Configuration) WriteFile(root string) error {
 	if err != nil {
 		return err
 	}
-	defer tempFi.Close()
+	tempFi.Close()
 
 	path := tempFi.Name()
 
