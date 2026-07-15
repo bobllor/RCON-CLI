@@ -10,6 +10,7 @@ It features:
 - Supports named server profiles
 - Send commands to servers by targeting a server profile name
 - Interactive configuration
+- Linux and Windows support
 
 To jump straight to how to execute commands for both modes:
 - [Direct mode](#executing-direct-commands)
@@ -257,6 +258,6 @@ rcon serve exec op Notch
 # Current Limitations
 
 - RCON passwords are stored in plain text
-- Windows is currently not supported (as of July 13th, 2026)
 - Multi-packet responses are not currently supported
+- MacOS is not tested, however since it shares a Unix environment it should work
 - Service mode only supports one instance at a time
