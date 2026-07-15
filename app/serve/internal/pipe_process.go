@@ -7,6 +7,24 @@ import (
 	"io"
 )
 
+// Process is the interface used to send data from the child
+// to the parent over a pipe.
+type Process interface {
+	// SetError sets the Process to an error with the message.
+	SetError(msg string)
+	// Seterrof sets the Process to an error with the format string.
+	SetErrorf(format string, a ...any)
+	// Report reports data over the pipe back to the parent.
+	//
+	// An error can occur if data parsing encounters an error.
+	Report() error
+	// ToError returns the error form of the message of the process.
+	ToError() error
+	// ValidateHandshake validates that the process is created from
+	// the parent by validating any object set by the parent.
+	ValidateHandshake() error
+}
+
 // PipeProcessError is a struct used to handle IPC.
 type PipeProcess struct {
 	OK  bool   `json:"ok"`
