@@ -118,7 +118,7 @@ func (isc *IpcStartCommand) Run(cmd *cobra.Command, args []string) {
 		} else {
 			// due to this overwriting the default entry, it will exit
 			// if not found.
-			utils.PrintFatalf("Entry %s is not found", isc.data.Target)
+			utils.PrintFatalf("Error: entry %s is not found", isc.data.Target)
 		}
 	}
 
@@ -155,12 +155,12 @@ func (isc *IpcStartCommand) runProcess(rconTarget string, entry config.RconEntry
 	if !isc.data.StartService {
 		err := isc.initRun(rconTarget)
 		if err != nil {
-			utils.PrintFatal(err)
+			utils.PrintFatalf("Error (%s): %v", rconTarget, err)
 		}
 	} else {
 		err := isc.serviceRunHandler(entry)
 		if err != nil {
-			utils.PrintFatal(err)
+			utils.PrintFatalf("Error (%s): %v", rconTarget, err)
 		}
 	}
 }
@@ -367,7 +367,7 @@ func (isc *IpcStartCommand) newRconClient(entry config.RconEntry) (*rcon.Rcon, e
 	rconn, err := rcon.NewRcon(entry.Address)
 	if err != nil {
 		if errors.Is(err, syscall.ECONNREFUSED) {
-			return nil, fmt.Errorf("failed to start RCON service: connection refused for %s", entry.Address)
+			return nil, fmt.Errorf("failed to establish a connection: connection refused for %s", entry.Address)
 		}
 
 		return nil, err
@@ -376,7 +376,7 @@ func (isc *IpcStartCommand) newRconClient(entry config.RconEntry) (*rcon.Rcon, e
 	err = rconn.Authenticate(entry.Password)
 	if err != nil {
 		if errors.Is(err, rcon.ErrAuthFail) {
-			return nil, errors.New("failed to authenticate RCON: password is incorrect")
+			return nil, errors.New("failed to authenticate: password is incorrect")
 		}
 
 		return nil, err
