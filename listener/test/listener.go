@@ -53,12 +53,42 @@ func (t *TcpListener) handleConnection(conn net.Conn) {
 
 	bytes.TrimRight(b, "\x00")
 
-	err = t.authenticate(b)
-	if err != nil {
-		packet := packet.NewPacket([]byte(err.Error()), packet.PacketLogin)
+	id := binary.LittleEndian.Uint32(b[8:12])
 
-		packet.RequestId = -1
+	switch id {
+	case 3:
+		err = t.authenticate(b)
+		if err != nil {
+			packet := packet.NewPacket([]byte{}, packet.PacketLogin)
 
+			packet.RequestId = -1
+
+			packetB, err := packet.ToBytes()
+			if err != nil {
+				return
+			}
+
+			_, err = conn.Write(packetB)
+			if err != nil {
+				return
+			}
+		}
+
+		pkt := packet.NewPacket([]byte{}, packet.PacketLogin)
+
+		pkt.RequestId = int32(id)
+
+		packetB, err := pkt.ToBytes()
+		if err != nil {
+			return
+		}
+
+		_, err = conn.Write(packetB)
+		if err != nil {
+			return
+		}
+	case 1:
+		packet := packet.NewPacket(b, packet.PacketCommand)
 		packetB, err := packet.ToBytes()
 		if err != nil {
 			return
@@ -68,16 +98,7 @@ func (t *TcpListener) handleConnection(conn net.Conn) {
 		if err != nil {
 			return
 		}
-	}
-
-	packet := packet.NewPacket(b, packet.PacketCommand)
-	packetB, err := packet.ToBytes()
-	if err != nil {
-		return
-	}
-
-	_, err = conn.Write(packetB)
-	if err != nil {
+	default:
 		return
 	}
 }
