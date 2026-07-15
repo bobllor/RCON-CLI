@@ -61,7 +61,7 @@ const usageTemplate = `Starts the RCON service in the background.
 This requires an RCON entry to exist, either given with the target or 
 having a valid default RCON entry.`
 
-func NewIpcStartCommand(addr, pidFile string, paths paths.AppPath) *IpcStartCommand {
+func NewIpcStartCommand(addr, pidFilePath string, paths paths.AppPath) *IpcStartCommand {
 	cmd := &IpcStartCommand{
 		Cmd: &cobra.Command{
 			Use:   "start [flags]",
@@ -71,7 +71,7 @@ func NewIpcStartCommand(addr, pidFile string, paths paths.AppPath) *IpcStartComm
 		},
 		data: IpcStartData{
 			Address: addr,
-			PidFile: pidFile,
+			PidFile: pidFilePath,
 		},
 		Path: paths,
 	}
