@@ -26,7 +26,7 @@ jobs:
       - name: Go test
         run: go test ./... -count=1
   artifact-release:
-    if: github.ref_type == "tag"
+    if: github.ref_type == tag
     needs: go-testing
     name: Artifact release
     runs-on: ubuntu-latest
