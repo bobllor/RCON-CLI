@@ -7,6 +7,7 @@ import (
 	"net"
 	"os"
 	"strings"
+	"syscall"
 
 	"github.com/bobllor/rcon/config"
 	"golang.org/x/term"
@@ -49,10 +50,8 @@ func ReadInput() (string, error) {
 
 // readInputHidden reads the STDIN with a hidden input and
 // returns the given input.
-//
-// Spaces are automatically trimmed.
 func ReadInputHidden() (string, error) {
-	b, err := term.ReadPassword(0)
+	b, err := term.ReadPassword(int(syscall.Stdin))
 	if err != nil {
 		return "", err
 	}

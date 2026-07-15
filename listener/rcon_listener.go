@@ -1,4 +1,4 @@
-package service
+package listener
 
 import (
 	"bytes"
@@ -13,6 +13,8 @@ type RconListener struct {
 	net.Listener
 }
 
+// NewRconListener creates a new listener for RCON commands. It uses
+// sockets to listen on.
 func NewRconListener(addr string) (*RconListener, error) {
 	ln, err := net.Listen("unix", addr)
 	if err != nil {
