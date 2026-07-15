@@ -4,9 +4,11 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"io"
 	"net"
 	"os"
 	"os/exec"
+	"runtime"
 	"strings"
 	"syscall"
 	"time"
@@ -15,8 +17,8 @@ import (
 	"github.com/bobllor/rcon/app/utils"
 	"github.com/bobllor/rcon/app/utils/paths"
 	"github.com/bobllor/rcon/config"
+	"github.com/bobllor/rcon/listener"
 	"github.com/bobllor/rcon/rcon"
-	"github.com/bobllor/rcon/service"
 	"github.com/spf13/cobra"
 )
 
@@ -156,7 +158,7 @@ func (isc *IpcStartCommand) runProcess(rconTarget string, entry config.RconEntry
 			utils.PrintFatal(err)
 		}
 	} else {
-		err := isc.serviceRun(entry)
+		err := isc.serviceRunHandler(entry)
 		if err != nil {
 			utils.PrintFatal(err)
 		}
@@ -185,34 +187,57 @@ func (isc *IpcStartCommand) initRun(rconTarget string) error {
 		rconTarget,
 	)
 	execCmd.Stderr = os.Stderr
-	// only used for debugging
-	// execCmd.Stdout = os.Stdout
 
-	pipeR, pipeW, err := os.Pipe()
-	if err != nil {
-		return err
+	// nil checks arent required due to the switch statement
+	var pipeR io.ReadCloser
+
+	switch runtime.GOOS {
+	case "linux", "darwin":
+		// debug only
+		// execCmd.Stdout = os.Stdout
+
+		pipe, pipeW, err := os.Pipe()
+		if err != nil {
+			return err
+		}
+		defer pipeW.Close()
+
+		execCmd.ExtraFiles = []*os.File{pipeW}
+		pipeR = pipe
+	case "windows":
+		pipe, err := execCmd.StdoutPipe()
+		if err != nil {
+			return err
+		}
+		pipeR = pipe
+
+		envkeyval := fmt.Sprintf("%s=%s", internal.WindowsEnvKey, "somevalue")
+
+		// resets the variables inside the process, this is used to ensure
+		// its ran from the parent process
+		execCmd.Env = append(execCmd.Env, envkeyval)
+		// USERPROFILE key is missing from the env in the child process
+		execCmd.Env = append(execCmd.Env, "USERPROFILE="+os.Getenv("USERPROFILE"))
+	default:
+		return errors.New("OS not supported")
 	}
-	defer pipeW.Close()
+
 	defer pipeR.Close()
 
-	// TODO: need to find an alternative to this for windows that also supports unix
-	// for now windows is not supported until this can be resolved.
-	execCmd.ExtraFiles = []*os.File{pipeW}
-
-	err = execCmd.Start()
+	err := execCmd.Start()
 	if err != nil {
 		internal.RemoveFiles(isc.data.PidFile, isc.data.Address)
 		return err
 	}
 
-	var data internal.PipeProcessError
-	// io.ReadAll/ReadFull does not work, it blocks the terminal
-	err = json.NewDecoder(pipeR).Decode(&data)
+	// windows will print json format to Stdout
+	var pipeProcess internal.PipeProcess
+	err = json.NewDecoder(pipeR).Decode(&pipeProcess)
 	if err != nil {
 		return err
 	}
 
-	if data.OK {
+	if pipeProcess.OK {
 		fmt.Printf("Starting RCON service (%s: %d)\n", rconTarget, execCmd.Process.Pid)
 		err := isc.initRunWritePid(execCmd)
 		if err != nil {
@@ -239,6 +264,35 @@ func (isc *IpcStartCommand) initRunWritePid(cmd *exec.Cmd) error {
 	return nil
 }
 
+// serviceRunHandler is used to run the service mode based on the
+// OS the program is being ran from.
+//
+// OSes that aren't supported will return an error.
+func (isc *IpcStartCommand) serviceRunHandler(entry config.RconEntry) error {
+	proc := internal.PipeProcess{OK: true}
+	switch runtime.GOOS {
+	case "darwin", "linux":
+		// this should already be created from initRun, serviceRunHandler
+		// is called in runProcess from the parent
+		fi := os.NewFile(uintptr(3), "pipe")
+
+		unixpipe := internal.NewUnixPipeProcess(proc, fi)
+		// im on windows right now cant test lol (7-14-26)
+		// in hindsight i shouldnt be doing this in the branch. whatever
+		// it should work, since the child process will be blocked until serviceRun
+		// is complete
+		defer fi.Close()
+
+		return isc.serviceRun(unixpipe, entry)
+	case "windows":
+		winpipe := internal.NewWindowsPipeProcess(proc)
+
+		return isc.serviceRun(winpipe, entry)
+	default:
+		return errors.New("OS not supported")
+	}
+}
+
 // serviceRun is the method used to start the service and listen for connections.
 // The connections will send command payloads to the socket in order to execute them
 // with RCON. This is intended to authenticate once and send any amount of commands.
@@ -257,68 +311,49 @@ func (isc *IpcStartCommand) initRunWritePid(cmd *exec.Cmd) error {
 //   - Cleanup file removal of the socket and PID files
 //
 // When the function ends, it will always remove the files even on an error.
-func (isc *IpcStartCommand) serviceRun(entry config.RconEntry) error {
-	// used to communicate to the parent call
-	processErr := internal.PipeProcessError{OK: true}
-
-	fi := os.NewFile(uintptr(3), "pipe")
-	defer fi.Close()
-
-	_, err := fi.Stat()
+//
+// This method handles both Unix and Windows OSes.
+func (isc *IpcStartCommand) serviceRun(process internal.Process, entry config.RconEntry) error {
+	err := process.ValidateHandshake()
 	if err != nil {
-		processErr.SetError("Must run rcon serve start")
-
-		return processErr.ToError()
+		return err
 	}
 
-	serv, err := service.NewRconListener(isc.data.Address)
-	if errors.Is(err, syscall.EADDRINUSE) {
-		processErr.SetError("RCON service is already running")
-		processErr.Encode(fi)
+	serv, err := isc.newRconListener(isc.data.Address)
+	if err != nil {
+		process.SetError(err.Error())
 
-		return processErr.ToError()
-	} else if err != nil {
-		processErr.SetError(err.Error())
-		processErr.Encode(fi)
+		err := process.Report()
+		if err != nil {
+			return err
+		}
 
-		return err
+		return process.ToError()
 	}
 	defer serv.Close()
 	go serv.Stop(time.Duration(isc.data.Duration) * time.Minute)
 
 	defer internal.RemoveFiles(isc.data.PidFile, isc.data.Address)
 
-	rconn, err := rcon.NewRcon(entry.Address)
+	rconn, err := isc.newRconClient(entry)
 	if err != nil {
-		processErr.SetError(err.Error())
-		if errors.Is(err, syscall.ECONNREFUSED) {
-			processErr.SetErrorf("Failed to start RCON service: connection refused for %s", entry.Address)
+		process.SetError(err.Error())
+
+		err := process.Report()
+		if err != nil {
+			return err
 		}
 
-		processErr.Encode(fi)
-
-		return processErr.ToError()
+		return process.ToError()
 	}
 	defer rconn.Close()
 
-	err = rconn.Authenticate(entry.Password)
-	if err != nil {
-		processErr.SetError(err.Error())
-		errReturn := errors.New(err.Error())
-
-		if errors.Is(err, rcon.ErrAuthFail) {
-			processErr.SetErrorf("Failed to authenticate RCON: password is incorrect")
-			errReturn = processErr.ToError()
-		}
-
-		processErr.Encode(fi)
-
-		return errReturn
-	}
-
 	// if no errors occur after the init and auth, it is considered successful.
 	// write back to parent
-	processErr.Encode(fi)
+	err = process.Report()
+	if err != nil {
+		return err
+	}
 
 	err = serv.HandleConnection(rconn)
 	if err != nil && !errors.Is(err, net.ErrClosed) {
@@ -326,6 +361,45 @@ func (isc *IpcStartCommand) serviceRun(entry config.RconEntry) error {
 	}
 
 	return nil
+}
+
+// newRconClient creates a new authenticated RCON client.
+//
+// It is the caller's responsibility to close the connection.
+func (isc *IpcStartCommand) newRconClient(entry config.RconEntry) (*rcon.Rcon, error) {
+	rconn, err := rcon.NewRcon(entry.Address)
+	if err != nil {
+		if errors.Is(err, syscall.ECONNREFUSED) {
+			return nil, fmt.Errorf("failed to start RCON service: connection refused for %s", entry.Address)
+		}
+
+		return nil, err
+	}
+
+	err = rconn.Authenticate(entry.Password)
+	if err != nil {
+		if errors.Is(err, rcon.ErrAuthFail) {
+			return nil, errors.New("failed to authenticate RCON: password is incorrect")
+		}
+
+		return nil, err
+	}
+
+	return rconn, nil
+}
+
+// newRconListener creates a new RCON listener for the commmands.
+//
+// It is the caller's responsibility to close the listener.
+func (isc *IpcStartCommand) newRconListener(addr string) (*listener.RconListener, error) {
+	serv, err := listener.NewRconListener(addr)
+	if errors.Is(err, syscall.EADDRINUSE) {
+		return nil, errors.New("RCON service is already running")
+	} else if err != nil {
+		return nil, err
+	}
+
+	return serv, nil
 }
 
 // writeFile writes to a given file path with bytes.
