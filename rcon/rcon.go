@@ -28,6 +28,7 @@ func NewRcon(address string) (*Rcon, error) {
 	return rcon, nil
 }
 
+// Authenticate authenticates to the server for the RCON client.
 func (r *Rcon) Authenticate(password string) error {
 	loginPacket := packet.NewPacket([]byte(password), packet.PacketLogin)
 	payload, err := loginPacket.ToBytes()
@@ -45,6 +46,12 @@ func (r *Rcon) Authenticate(password string) error {
 	if err != nil {
 		return err
 	}
+	// payload will be empty if it is a valid RCON server
+	// auth success and fail will also remain empty
+	if len(res.Payload) != 0 {
+		return ErrNotRconServer
+	}
+
 	if res.RequestId == -1 {
 		return ErrAuthFail
 	}
