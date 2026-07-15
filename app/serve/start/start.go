@@ -277,10 +277,7 @@ func (isc *IpcStartCommand) serviceRunHandler(entry config.RconEntry) error {
 		fi := os.NewFile(uintptr(3), "pipe")
 
 		unixpipe := internal.NewUnixPipeProcess(proc, fi)
-		// im on windows right now cant test lol (7-14-26)
-		// in hindsight i shouldnt be doing this in the branch. whatever
-		// it should work, since the child process will be blocked until serviceRun
-		// is complete
+		// will not close until serviceRun exists since it blocks
 		defer fi.Close()
 
 		return isc.serviceRun(unixpipe, entry)
