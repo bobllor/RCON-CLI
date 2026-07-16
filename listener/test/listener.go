@@ -51,7 +51,7 @@ func (t *TcpListener) handleConnection(conn net.Conn) {
 		return
 	}
 
-	bytes.TrimRight(b, "\x00")
+	b = bytes.TrimRight(b, "\x00")
 
 	id := binary.LittleEndian.Uint32(b[8:12])
 
@@ -87,8 +87,10 @@ func (t *TcpListener) handleConnection(conn net.Conn) {
 		if err != nil {
 			return
 		}
-	case 1:
-		packet := packet.NewPacket(b, packet.PacketCommand)
+	case 2:
+		resBytes := []byte("command executed")
+		packet := packet.NewPacket(resBytes, packet.PacketCommand)
+
 		packetB, err := packet.ToBytes()
 		if err != nil {
 			return
