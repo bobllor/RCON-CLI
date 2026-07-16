@@ -6,8 +6,8 @@ import (
 	"testing"
 
 	"github.com/bobllor/assert"
-	"github.com/bobllor/rcon/app/test"
-	"github.com/bobllor/rcon/app/utils/files"
+	"github.com/bobllor/rcon-cli/app/test"
+	"github.com/bobllor/rcon-cli/app/utils/files"
 )
 
 func TestCheckAndRemoveStaleService(t *testing.T) {

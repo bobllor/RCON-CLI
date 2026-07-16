@@ -6,9 +6,9 @@ import (
 	"slices"
 	"strings"
 
-	"github.com/bobllor/rcon/app/utils"
-	"github.com/bobllor/rcon/app/utils/paths"
-	"github.com/bobllor/rcon/config"
+	"github.com/bobllor/rcon-cli/app/utils"
+	"github.com/bobllor/rcon-cli/app/utils/paths"
+	"github.com/bobllor/rcon-cli/config"
 	"github.com/spf13/cobra"
 )
 

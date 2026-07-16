@@ -4,11 +4,11 @@ import (
 	"fmt"
 	"os"
 
-	ipcexec "github.com/bobllor/rcon/app/serve/exec"
-	"github.com/bobllor/rcon/app/serve/internal"
-	ipcstart "github.com/bobllor/rcon/app/serve/start"
-	ipcstop "github.com/bobllor/rcon/app/serve/stop"
-	"github.com/bobllor/rcon/app/utils/paths"
+	ipcexec "github.com/bobllor/rcon-cli/app/serve/exec"
+	"github.com/bobllor/rcon-cli/app/serve/internal"
+	ipcstart "github.com/bobllor/rcon-cli/app/serve/start"
+	ipcstop "github.com/bobllor/rcon-cli/app/serve/stop"
+	"github.com/bobllor/rcon-cli/app/utils/paths"
 	"github.com/spf13/cobra"
 )
 

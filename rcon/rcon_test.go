@@ -4,7 +4,7 @@ import (
 	"testing"
 
 	"github.com/bobllor/assert"
-	listenertest "github.com/bobllor/rcon/listener/test"
+	listenertest "github.com/bobllor/rcon-cli/listener/test"
 )
 
 func TestAuthenticate(t *testing.T) {

@@ -4,7 +4,7 @@ import (
 	"path/filepath"
 	"testing"
 
-	"github.com/bobllor/rcon/app/utils/paths"
+	"github.com/bobllor/rcon-cli/app/utils/paths"
 )
 
 // NewAppPath returns an AppPath set to the test temp directory.

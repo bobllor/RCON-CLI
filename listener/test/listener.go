@@ -6,7 +6,7 @@ import (
 	"errors"
 	"net"
 
-	"github.com/bobllor/rcon/packet"
+	"github.com/bobllor/rcon-cli/packet"
 )
 
 type TcpListener struct {

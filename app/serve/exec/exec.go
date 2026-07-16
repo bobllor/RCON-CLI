@@ -10,7 +10,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bobllor/rcon/app/utils"
+	"github.com/bobllor/rcon-cli/app/utils"
 	"github.com/spf13/cobra"
 )
 
