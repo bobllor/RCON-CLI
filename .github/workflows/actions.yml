@@ -38,7 +38,7 @@ jobs:
       - name: Go dependencies
         run: go mod download
       - name: Build artifacts (Linux, Windows, MacOS)
-        run: ./build.sh
+        run: ./build-release.sh
       - name: Upload artifact
         uses: softprops/action-gh-release@v2
         with:
