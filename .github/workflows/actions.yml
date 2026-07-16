@@ -37,13 +37,7 @@ jobs:
           go-version: '>=1.24'
       - name: Go dependencies
         run: go mod download
-      - name: Artifact build (Linux)
-        run: go build -o build/linux/gorcon
-      - name: Artifact build (Windows)
-        run: GOOS=windows GOARCH=amd64 -o build/windows/gorcon.exe
-      - name: Artifact build (MacOS)
-        run: GOOS=darwin GOARCH=arm64 -o build/darwin/gorcon
-      - name: Build artifacts
+      - name: Build artifacts (Linux, Windows, MacOS)
         run: ./build.sh
       - name: Upload artifact
         uses: softprops/action-gh-release@v2
