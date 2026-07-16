@@ -6,7 +6,8 @@ os=$(uname -s)
 
 file_name=""
 
-echo "Determining OS..."
+echo -e "Starting gorcon installation...\n"
+
 case "$os" in
     Linux)
         file_name="gorcon.linux.amd64.tar"
@@ -63,4 +64,5 @@ rm -rf "$temp_folder"
 
 source "$bash_file"
 
-echo "Successfully installed! Run \"gorcon\" to get started"
+echo -e "\nSuccessfully installed!"
+echo "Run \"gorcon\" to get started"
