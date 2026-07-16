@@ -2,6 +2,8 @@ on:
   push:
     paths:
       - "**.go"
+    tags:
+      - "v*.*.*"
   pull_request:
     branches:
       - main
@@ -23,3 +25,23 @@ jobs:
         run: go mod download
       - name: Go test
         run: go test ./... -count=1
+  artifact-release:
+    if: github.ref_type == 'tag'
+    needs: go-testing
+    name: Artifact release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-go@v6
+        with:
+          go-version: '>=1.24'
+      - name: Go dependencies
+        run: go mod download
+      - name: Build artifacts (Linux, Windows, MacOS)
+        run: ./build-release.sh
+      - name: Upload artifact
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            build/*.tar
+            build/*.zip
