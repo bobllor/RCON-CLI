@@ -47,3 +47,20 @@ func TestAuthenticate(t *testing.T) {
 	}
 
 }
+
+func TestCommand(t *testing.T) {
+	li, err := listenertest.NewTcpListener()
+	assert.Nil(t, err)
+	defer li.Close()
+
+	go li.HandleConnection()
+
+	con, err := NewRcon(li.Addr().String())
+	assert.Nil(t, err)
+	defer con.Close()
+
+	res, err := con.Command("some command")
+	assert.Nil(t, err)
+
+	assert.True(t, len(res) != 0)
+}
