@@ -27,6 +27,7 @@ jobs:
         run: go test ./... -count=1
   artifact-release:
     if: github.ref_type == 'tag'
+    permissions: write-all
     needs: go-testing
     name: Artifact release
     runs-on: ubuntu-latest
@@ -40,7 +41,7 @@ jobs:
       - name: Build artifacts (Linux, Windows, MacOS)
         run: ./build-release.sh
       - name: Upload artifact
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
             build/*.tar
