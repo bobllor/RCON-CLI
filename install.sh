@@ -24,13 +24,15 @@ url="$base_url/download/$file_name"
 
 # folder setup
 temp_folder="/tmp/gorcontemp"
-mkdir -p "/tmp/$temp_folder"
+mkdir -p "$temp_folder"
 mkdir -p "$HOME/.local/bin"
 
 cd "$temp_folder"
 
 curl -L "$url" -o "$temp_folder/$file_name"
 tar -xf "$file_name" -C "$HOME/.local/bin"
+
+rm -rf "$temp_folder"
 
 cd -
 
