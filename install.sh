@@ -4,13 +4,15 @@ set -e
 
 os=$(uname -s)
 
-release_url=""
+base_url="https://github.com/bobllor/rcon/releases/latest"
+file_name=""
+
 case "$os" in
     Linux)
-        release_url="Linux"
+        file_name="gorcon.linux.amd64.tar"
         ;;
     Darwin):
-        release_url="Darwin"
+        file_name="gorcon.darwin.amd64.tar"
         ;;
     *)
         echo "OS is unsupported ($os)"
@@ -18,13 +20,23 @@ case "$os" in
         ;;
 esac
 
-if [[ ! -d "$HOME/.local/bin" ]]; then
-    mkdir -p "$HOME/.local/bin"
-fi
+url="$base_url/download/$file_name"
+
+# folder setup
+temp_folder="/tmp/gorcontemp"
+mkdir -p "/tmp/$temp_folder"
+mkdir -p "$HOME/.local/bin"
+
+cd "$temp_folder"
+
+curl -L "$url" -o "$temp_folder/$file_name"
+tar -xf "$file_name" -C "$HOME/.local/bin"
+
+cd -
 
 bash_file="$HOME/.bashrc"
 
-if [[ -z $(cat "$bash_file" | grep '$PATH:$HOME/.local/bin') ]]; then
+if [[ -z $(cat "$bash_file" | grep 'export PATH="$PATH:$HOME/.local/bin"') ]]; then
     echo "" >> "$bash_file"
     echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$bash_file"
 
