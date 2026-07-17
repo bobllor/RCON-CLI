@@ -13,12 +13,12 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/bobllor/rcon/app/serve/internal"
-	"github.com/bobllor/rcon/app/utils"
-	"github.com/bobllor/rcon/app/utils/paths"
-	"github.com/bobllor/rcon/config"
-	"github.com/bobllor/rcon/listener"
-	"github.com/bobllor/rcon/rcon"
+	"github.com/bobllor/rcon-cli/app/serve/internal"
+	"github.com/bobllor/rcon-cli/app/utils"
+	"github.com/bobllor/rcon-cli/app/utils/paths"
+	"github.com/bobllor/rcon-cli/config"
+	"github.com/bobllor/rcon-cli/listener"
+	"github.com/bobllor/rcon-cli/rcon"
 	"github.com/spf13/cobra"
 )
 

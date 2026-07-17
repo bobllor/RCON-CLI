@@ -9,7 +9,7 @@ import (
 	"strings"
 	"syscall"
 
-	"github.com/bobllor/rcon/config"
+	"github.com/bobllor/rcon-cli/config"
 	"golang.org/x/term"
 )
 

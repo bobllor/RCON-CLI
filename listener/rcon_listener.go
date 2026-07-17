@@ -6,7 +6,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bobllor/rcon/rcon"
+	"github.com/bobllor/rcon-cli/rcon"
 )
 
 type RconListener struct {

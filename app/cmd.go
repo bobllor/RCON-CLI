@@ -5,14 +5,14 @@ import (
 	"os"
 	"path/filepath"
 
-	"github.com/bobllor/rcon/app/add"
-	"github.com/bobllor/rcon/app/edit"
-	"github.com/bobllor/rcon/app/list"
-	"github.com/bobllor/rcon/app/remove"
-	"github.com/bobllor/rcon/app/root"
-	"github.com/bobllor/rcon/app/serve"
-	"github.com/bobllor/rcon/app/utils/files"
-	"github.com/bobllor/rcon/app/utils/paths"
+	"github.com/bobllor/rcon-cli/app/add"
+	"github.com/bobllor/rcon-cli/app/edit"
+	"github.com/bobllor/rcon-cli/app/list"
+	"github.com/bobllor/rcon-cli/app/remove"
+	"github.com/bobllor/rcon-cli/app/root"
+	"github.com/bobllor/rcon-cli/app/serve"
+	"github.com/bobllor/rcon-cli/app/utils/files"
+	"github.com/bobllor/rcon-cli/app/utils/paths"
 )
 
 // Execute is the main entry point of the root and its children. It will create a new

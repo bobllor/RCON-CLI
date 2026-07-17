@@ -1,4 +1,4 @@
-module github.com/bobllor/rcon
+module github.com/bobllor/rcon-cli
 
 go 1.25.0
 

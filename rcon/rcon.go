@@ -8,7 +8,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/bobllor/rcon/packet"
+	"github.com/bobllor/rcon-cli/packet"
 )
 
 type Rcon struct {

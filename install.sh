@@ -4,8 +4,9 @@ set -e
 
 os=$(uname -s)
 
-base_url="https://github.com/bobllor/rcon/releases/latest"
 file_name=""
+
+echo -e "Starting gorcon installation...\n"
 
 case "$os" in
     Linux)
@@ -20,7 +21,13 @@ case "$os" in
         ;;
 esac
 
+base_url="https://github.com/bobllor/rcon-cli/releases/latest"
 url="$base_url/download/$file_name"
+
+if ! curl -fsI "$url" > /dev/null; then
+    echo "Failed to fetch download link: $url"
+    exit 1
+fi
 
 # folder setup
 temp_folder="/tmp/gorcontemp"
@@ -29,20 +36,33 @@ mkdir -p "$HOME/.local/bin"
 
 cd "$temp_folder"
 
+echo "Downloading $file_name..."
+# yes this is formatting
+echo ""
+
 curl -L "$url" -o "$temp_folder/$file_name"
+
+echo ""
+
+echo "Extracting files..."
 tar -xf "$file_name" -C "$HOME/.local/bin"
-
-rm -rf "$temp_folder"
-
-cd -
 
 bash_file="$HOME/.bashrc"
 
 if [[ -z $(cat "$bash_file" | grep 'export PATH="$PATH:$HOME/.local/bin"') ]]; then
+    echo "PATH not found"
+    echo "Configuring PATH..."
+
     echo "" >> "$bash_file"
     echo 'export PATH="$PATH:$HOME/.local/bin"' >> "$bash_file"
 
-    echo "Added PATH $HOME/.local/bin"
+    echo "Configured PATH ($HOME/.local/bin)"
 fi
 
+echo "Cleaning up..."
+rm -rf "$temp_folder"
+
 source "$bash_file"
+
+echo -e "\nSuccessfully installed!"
+echo "Run \"gorcon\" to get started"

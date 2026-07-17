@@ -5,9 +5,9 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/bobllor/rcon/app/serve/internal"
-	"github.com/bobllor/rcon/app/utils"
-	"github.com/bobllor/rcon/app/utils/paths"
+	"github.com/bobllor/rcon-cli/app/serve/internal"
+	"github.com/bobllor/rcon-cli/app/utils"
+	"github.com/bobllor/rcon-cli/app/utils/paths"
 	"github.com/spf13/cobra"
 )
 
