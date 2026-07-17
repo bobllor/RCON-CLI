@@ -44,6 +44,10 @@ jobs:
             echo "Failed to start Docker container"
             exit 1
           fi
+
+          # server needs to setup and run before the ports
+          # are available to be used.
+          sleep 7
       - name: Go test
         run: go test ./... -count=1
   artifact-release:
