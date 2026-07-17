@@ -1,6 +1,7 @@
 FROM openjdk:28-ea-bookworm
 
 EXPOSE 25575
+EXPOSE 25565
 
 ARG USER="mc-integrator"
 
