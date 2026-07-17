@@ -23,6 +23,10 @@ jobs:
           go-version: '>=1.24'
       - name: Go setup
         run: go mod download
+      - name: Docker build
+        run: docker build . -t intdocker -f docker/Dockerfile.mcservertest
+      - name: Docker run
+        run: docker run -d -p 25565:25565 -p 25575:25575 --name intdockertest intdocker
       - name: Go test
         run: go test ./... -count=1
   artifact-release:
