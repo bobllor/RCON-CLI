@@ -257,7 +257,7 @@ To send a command to a non-default profile entry, there are two ways:
 will not be used if at least one flag is given
 2. The target flag `-t/--target` to target use the information from a specific target profile
 
-> The flags `-t/--target` and any of the two `-a/--address`/`-p/--password` cannot be used together.
+The flags `-t/--target` and any of the two `-a/--address`/`-p/--password` cannot be used together.
 
 ```bash
 # default usage, will always send to default profile otherwise interactive mode is started
@@ -270,7 +270,7 @@ gorcon exec deop Notch -t server2
 gorcon exec op Jeb -a 10.0.0.0:12345
 
 # the flags -t and -p are not allowed to be ran together. this also includes -t and -a
-gorcon exec say wowzers -p somepasswordhere -t server01
+gorcon exec say wowzers -p somepasswordhere -t server01 # ERROR
 ```
 
 If the *command has an output response*, it displays the response to the terminal.
