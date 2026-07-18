@@ -30,13 +30,13 @@ jobs:
           docker run -d -p 25565:25565 -p 25575:25575 --name intdockertest intdocker
 
           status="false"
-          for i in {1..10}; do
-            docker inspect intdocker > /dev/null 2>& 1 && status="true"
-            if [[ $status == "true" ]]; then
+          for i in {1..25}; do
+            if [[ ! -z $(docker logs intdockertest 2> /dev/null | grep "For help, type \"help\"") ]]; then
+              status="true"
               break
             fi
 
-            echo "$i: Waiting for container response..."
+            echo "$i: Waiting for server setup..."
             sleep 1
           done
 
@@ -44,12 +44,6 @@ jobs:
             echo "Failed to start Docker container"
             exit 1
           fi
-
-          # server needs to setup and run before the ports
-          # are available to be used.
-          # not ideal but i have no idea how to determine whether or not
-          # the java server is setup
-          sleep 15
       - name: Go test
         run: go test ./... -count=1
   artifact-release:
