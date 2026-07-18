@@ -27,7 +27,6 @@ echo "Created macOS binary (arm64)"
 
 GOOS=windows GOARCH=amd64 go build -o build/windows/gorcon.exe \
     -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$($version_tag)'"
-
 echo "Created Windows executable (amd64)"
 
 cd build/linux
