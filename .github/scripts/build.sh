@@ -23,7 +23,7 @@ echo "Created Linux binary (amd64)"
 
 GOOS=darwin GOARCH=arm64 go build -o build/darwin/gorcon \
     -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$($version_tag)'"
-echo "Created MacOS binary (arm64)"
+echo "Created macOS binary (arm64)"
 
 GOOS=windows GOARCH=amd64 go build -o build/windows/gorcon.exe \
     -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$($version_tag)'"
