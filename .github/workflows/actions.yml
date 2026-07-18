@@ -60,7 +60,7 @@ jobs:
       - name: Go dependencies
         run: go mod download
       - name: Build artifacts (Linux, Windows, MacOS)
-        run: ./build-release.sh
+        run: ./.github/scripts/build.sh "${{ github.ref_name }}""
       - name: Upload artifact
         uses: softprops/action-gh-release@v3
         with:
