@@ -7,6 +7,7 @@ import (
 
 	"github.com/bobllor/rcon-cli/app/add"
 	"github.com/bobllor/rcon-cli/app/edit"
+	rconexec "github.com/bobllor/rcon-cli/app/exec"
 	"github.com/bobllor/rcon-cli/app/list"
 	"github.com/bobllor/rcon-cli/app/remove"
 	"github.com/bobllor/rcon-cli/app/root"
@@ -40,6 +41,7 @@ func Execute() {
 
 	rootCmd := root.NewRootCommand(appPaths)
 
+	execCmd := rconexec.NewExecCommand(appPaths)
 	addCmd := add.NewAddCommand(appPaths)
 	listCmd := list.NewListCommand(appPaths)
 	rmCmd := remove.NewRemoveCommand(appPaths)
@@ -50,6 +52,7 @@ func Execute() {
 
 	serveCmd := serve.NewServeCommand(socketAddr, pidPath, appPaths)
 
+	rootCmd.Cmd.AddCommand(execCmd.Cmd)
 	rootCmd.Cmd.AddCommand(addCmd.Cmd)
 	rootCmd.Cmd.AddCommand(listCmd.Cmd)
 	rootCmd.Cmd.AddCommand(rmCmd.Cmd)

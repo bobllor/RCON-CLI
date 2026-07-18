@@ -21,8 +21,9 @@ type RemoveCommand struct {
 func NewRemoveCommand(paths paths.AppPath) *RemoveCommand {
 	cmd := &RemoveCommand{
 		Cmd: &cobra.Command{
-			Use:   "rm <entry>...",
-			Short: "Remove a RCON entry",
+			Use:     "remove <entry>...",
+			Short:   "Remove a RCON entry",
+			Aliases: []string{"rm"},
 		},
 		Path: paths,
 	}
