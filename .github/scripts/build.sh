@@ -4,6 +4,13 @@
 
 set -e
 
+version_tag=$1
+
+if [[ -z $version_tag ]]; then
+    echo "Missing version argument"
+    exit 1
+fi
+
 files=("build/linux/gorcon" "build/darwin/gorcon" "build/windows/gorcon.exe")
 
 for file in "$files[@]"; do
@@ -11,15 +18,15 @@ for file in "$files[@]"; do
 done
 
 GOOS=linux GOARCH=amd64 go build -o build/linux/gorcon \
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$(git tag | tail -1)'"
+    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$($version_tag)'"
 echo "Created Linux binary (amd64)"
 
 GOOS=darwin GOARCH=arm64 go build -o build/darwin/gorcon \
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$(git tag | tail -1)'"
+    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$($version_tag)'"
 echo "Created MacOS binary (arm64)"
 
 GOOS=windows GOARCH=amd64 go build -o build/windows/gorcon.exe \
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$(git tag | tail -1)'"
+    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$($version_tag)'"
 
 echo "Created Windows executable (amd64)"
 
