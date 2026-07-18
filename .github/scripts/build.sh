@@ -17,16 +17,13 @@ for file in "$files[@]"; do
     rm -f "$file"
 done
 
-GOOS=linux GOARCH=amd64 go build -o build/linux/gorcon \
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$version_tag'"
+GOOS=linux GOARCH=amd64 go build -o build/linux/gorcon -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$version_tag'"
 echo "Created Linux binary (amd64)"
 
-GOOS=darwin GOARCH=arm64 go build -o build/darwin/gorcon \
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$version_tag'"
+GOOS=darwin GOARCH=arm64 go build -o build/darwin/gorcon -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$version_tag'"
 echo "Created macOS binary (arm64)"
 
-GOOS=windows GOARCH=amd64 go build -o build/windows/gorcon.exe \
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$version_tag'"
+GOOS=windows GOARCH=amd64 go build -o build/windows/gorcon.exe -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$version_tag'"
 echo "Created Windows executable (amd64)"
 
 cd build/linux
