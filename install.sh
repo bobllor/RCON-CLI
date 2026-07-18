@@ -10,10 +10,10 @@ echo -e "Starting gorcon installation...\n"
 
 case "$os" in
     Linux)
-        file_name="gorcon.linux.amd64.tar"
+        file_name="gorcon.linux.amd64.tar.gz"
         ;;
     Darwin):
-        file_name="gorcon.darwin.amd64.tar"
+        file_name="gorcon.darwin.amd64.tar.gz"
         ;;
     *)
         echo "OS is unsupported ($os)"
