@@ -1,4 +1,8 @@
-# GO RCON CLI
+<div align="center"> 
+    <h1>GO RCON CLI</h1>
+</div>
+
+# Overview
 
 A Go-based CLI for executing commands over the RCON protocol, featuring a persistent background
 RCON client that maintains an authenticated connection between consecutive commands.
