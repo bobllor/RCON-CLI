@@ -45,7 +45,7 @@ curl -L "$url" -o "$temp_folder/$file_name"
 echo ""
 
 echo "Extracting files..."
-tar -xf "$file_name" -C "$HOME/.local/bin"
+tar -xzf "$file_name" -C "$HOME/.local/bin"
 
 bash_file="$HOME/.bashrc"
 

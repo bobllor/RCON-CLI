@@ -1,0 +1,20 @@
+FROM openjdk:28-ea-bookworm
+
+EXPOSE 25575
+EXPOSE 25565
+
+ARG USER="mc-integrator"
+
+RUN adduser ${USER}
+RUN apt-get install curl bash
+
+WORKDIR /mcserver
+
+COPY docker/server.properties .
+COPY docker/run.sh .
+
+RUN chown -R ${USER} /mcserver
+
+USER ${USER}
+
+ENTRYPOINT [ "bash", "run.sh" ]

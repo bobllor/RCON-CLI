@@ -23,6 +23,31 @@ jobs:
           go-version: '>=1.24'
       - name: Go setup
         run: go mod download
+      - name: Docker build
+        run: docker build . -t intdocker -f docker/Dockerfile.mcservertest
+      - name: Docker run
+        run: |
+          docker run -d -p 25565:25565 -p 25575:25575 --name intdockertest intdocker
+
+          status="false"
+          for i in {1..10}; do
+            docker inspect intdocker > /dev/null 2>& 1 && status="true"
+            if [[ $status == "true" ]]; then
+              break
+            fi
+
+            echo "$i: Waiting for container response..."
+            sleep 1
+          done
+
+          if [[ $status == "false" ]]; then
+            echo "Failed to start Docker container"
+            exit 1
+          fi
+
+          # server needs to setup and run before the ports
+          # are available to be used.
+          sleep 7
       - name: Go test
         run: go test ./... -count=1
   artifact-release:
