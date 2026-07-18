@@ -68,6 +68,9 @@ gorcon serve exec unban Notch
 # Table of contents
 
 - [Installation](#installation)
+    - [Linux/macOS](#linuxmacos)
+    - [Windows](#windows)
+    - [Manual](#manual)
 - [Profiles](#profiles)
     - [Named Server Profiles](#named-server-profiles)
     - [Adding Profiles](#adding-profiles)
@@ -84,32 +87,30 @@ gorcon serve exec unban Notch
 
 # Installation
 
-There are two scripts to install, a *Shell* and a *PowerShell* script. It is *recommended to use
-scripts* to install as it will *initialize the PATH variables* in order to use them in
-the terminal.
+Installation scripts are used to install them based on your OS.
 
-For ***Linux and macOS*** installation:
-`bash <(curl -s https://raw.githubusercontent.com/bobllor/rcon/refs/heads/main/install.sh)`
-
-For ***Windows*** installation: `WIP`
-
-If manual is preferred, cloning the repo and running the commands based on your OS (requires Go >= 1.24).
-- Must run `go mod download` to get all dependencies prior to building
-- Must setup PATH variables manually (or this can be ignored)
+## Linux/macOS
 
 ```bash
-# linux
-GOOS=linux GOARCH=amd64 go build -o build/linux/gorcon \ 
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$(git tag | tail -1)'"
-
-# macOS
-GOOS=darwin GOARCH=arm64 go build -o build/darwin/gorcon \ 
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$(git tag | tail -1)'"
-
-# windows
-GOOS=windows GOARCH=amd64 go build -o build/windows/gorcon.exe \ 
-    -ldflags="-X 'github.com/bobllor/rcon-cli/app/root.ProgramVersion=$(git tag | tail -1)'"
+bash <(curl -s https://raw.githubusercontent.com/bobllor/rcon/refs/heads/main/install.sh)
 ```
+
+## Windows
+
+```powershell
+# WIP
+```
+
+## Manual
+
+If manual is preferred, you can either:
+1. Download and extract the latest binaries related to your OS
+2. Clone the repository and run the build commands manually (requires Go >= 1.24)
+
+Usage of `gorcon` is expected to be *through a terminal session*. How to use it is
+dependent on your preference, such as setting the PATH variable or storing
+it in a folder to use.
+- It is recommended to use the installation scripts as this is handled for you
 
 
 # Profiles
