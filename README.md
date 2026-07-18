@@ -4,15 +4,15 @@
 
 # Overview
 
-A Go-based CLI for executing commands over the RCON protocol, featuring a persistent background
+A cross-platform CLI application for executing commands over the RCON protocol, featuring a persistent background
 RCON client that maintains an authenticated connection between consecutive commands.
 
 It features:
 - A direct mode for one-off command execution
 - A service mode for a persistent RCON client listening in the background for commands
-- IPC communication for command execution over sockets
+- IPC communication for command execution over a persistent RCON client
 - Supports named server profiles
-- Send commands to servers by targeting a server profile name
+- Execute commands to servers by targeting a server profile name
 - Interactive configuration
 - Linux and Windows support
 
@@ -83,11 +83,20 @@ gorcon serve exec unban Notch
         - [Starting the Service](#starting-the-service)
         - [Stopping the Service](#stopping-the-service)
         - [Executing Service Commands](#executing-service-commands)
+- [Development](#development)
+    - [Requirements](#requirements)
+    - [Getting started](#getting-started)
 - [Current Limitations](#current-limitations)
 
 # Installation
 
-Installation scripts are used to install them based on your OS.
+Installation scripts are used to automatically install and setup the
+application based on your OS. There are certain software requirements that are
+required for the installation script:
+- Linux/macOS: `curl`, `tar`
+- Windows: `curl`/`Invoke-WebRequest`
+
+On modern OSes, these will already be included.
 
 ## Linux/macOS
 
@@ -103,9 +112,10 @@ bash <(curl -s https://raw.githubusercontent.com/bobllor/rcon/refs/heads/main/in
 
 ## Manual
 
-If manual is preferred, you can either:
+If manual is preferred, you can:
 1. Download and extract the latest binaries related to your OS
 2. Clone the repository and run the build commands manually (requires Go >= 1.24)
+3. Clone the repository and run the `install.sh`/`install.ps1` script
 
 Usage of `gorcon` is expected to be *through a terminal session*. How to use it is
 dependent on your preference, such as setting the PATH variable or storing
@@ -329,6 +339,43 @@ gorcon serve exec say hello world!
 gorcon serve exec op Notch
 ```
 
+# Development
+
+Due to the program being *cross-platform*, it is expected that both Windows and a Unix environment
+is used.
+
+## Requirements
+
+Required:
+- Go >= 1.24
+- Docker >= 28.3.2
+- Bash / Git Bash
+
+Optional (only for the scripts):
+- curl
+- tar
+- zip
+
+## Getting Started
+
+Clone the repository:
+
+```bash
+git clone https://github.com/bobllor/RCON-CLI
+```
+
+The structure of the project and what each directory is used for:
+
+```
+.
+└── root/
+    ├── app (CLI)
+    ├── config (program configuration logic)
+    ├── docker (vanilla server setup for integration testing)
+    ├── listener (daemon service)
+    ├── packet (RCON packets)
+    └── rcon (RCON communication) 
+```
 
 # Current Limitations
 
