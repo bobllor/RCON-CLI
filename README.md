@@ -342,7 +342,7 @@ gorcon serve exec op Notch
 # Development
 
 Due to the program being *cross-platform*, it is expected that both Windows and a Unix environment
-is used.
+are used.
 
 ## Requirements
 
