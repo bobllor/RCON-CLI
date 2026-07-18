@@ -69,5 +69,5 @@ jobs:
         uses: softprops/action-gh-release@v3
         with:
           files: |
-            build/*.tar
+            build/*.tar.gz
             build/*.zip
