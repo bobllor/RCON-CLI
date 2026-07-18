@@ -26,8 +26,9 @@ type ListData struct {
 func NewListCommand(paths paths.AppPath) *ListCommand {
 	listCmd := &ListCommand{
 		Cmd: &cobra.Command{
-			Use:   "list [entry]... [flags]",
-			Short: "Lists RCON entries and its information",
+			Use:     "list [entry]... [flags]",
+			Short:   "Lists RCON entries and its information",
+			Aliases: []string{"ls"},
 		},
 		Path: paths,
 	}
