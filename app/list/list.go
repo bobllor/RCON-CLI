@@ -86,7 +86,6 @@ func (lc *ListCommand) getDetailedEntries(cfg *config.Configuration, entries []s
 	// already handled in PreRunE but for sanity check
 	if showDefault {
 		if cfg.DefaultRcon == "" {
-			fmt.Println("No default RCON entry found")
 			return "No default RCON entry found"
 		}
 		targets = append(targets, cfg.DefaultRcon)
