@@ -12,7 +12,7 @@ case "$os" in
         file_name="gorcon.linux.amd64.tar.gz"
         ;;
     Darwin):
-        file_name="gorcon.darwin.arm64.tar.gz"
+        file_name="gorcon.macos.arm64.tar.gz"
         profile_file=".zshrc"
         ;;
     *)
