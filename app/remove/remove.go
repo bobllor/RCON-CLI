@@ -58,7 +58,7 @@ func (r *RemoveCommand) Run(cmd *cobra.Command, args []string) {
 
 func (r *RemoveCommand) PreRunE(cmd *cobra.Command, args []string) error {
 	if len(args) < 1 {
-		return errors.New("must have at least one argument")
+		return errors.New("must have at least one entry argument")
 	}
 
 	return nil
