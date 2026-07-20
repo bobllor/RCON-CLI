@@ -6,7 +6,7 @@ import (
 )
 
 // will be updated via go build -ldflags="-X 'root.ProgramVersion=version'"
-var ProgramVersion = "v1.0.0"
+var ProgramVersion = "N/A"
 
 // RootCommand is the entry point of the program. If no subcommands
 // are used, then it will default to running a command to the
