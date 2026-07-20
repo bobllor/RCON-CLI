@@ -80,7 +80,7 @@ func NewConfiguration() *Configuration {
 //
 // If the root path does not exist, then it will be created.
 //
-// All data in the original file will be overwritten if this is called.
+// All data in the original file will be overwritten if successful.
 func (c *Configuration) WriteFile(root string) error {
 	b, err := yaml.Marshal(c)
 	if err != nil {
