@@ -71,6 +71,9 @@ gorcon serve exec unban Notch
     - [Linux/macOS](#linuxmacos)
     - [Windows](#windows)
     - [Manual](#manual)
+- [Uninstall](#uninstall)
+    - [Linux/macOS](#uninstall-linuxmacos)
+    - [Windows](#uninstall-windows)
 - [Profiles](#profiles)
     - [Named Server Profiles](#named-server-profiles)
     - [Adding Profiles](#adding-profiles)
@@ -132,11 +135,11 @@ will be used. The same requirements are needed to run the commands below:
 
 Simply copy and paste the command in your respective terminal.
 
-## Linux/macOS
+## Uninstall Linux/macOS
 
 WIP
 
-## Windows
+## Uninstall Windows
 
 WIP
 
