@@ -149,25 +149,6 @@ func (dc *DefaultCommand) PreRunE(cmd *cobra.Command, args []string) error {
 	return nil
 }
 
-// handleEditName handles validating and setting the RCON entry name. It will return the RCON name, either
-// the orignal name if no modifications were made or a new name.
-//
-// If the flag was not used then this will return the original name.
-func (dc *DefaultCommand) handleEditName(cfg *config.Configuration, baseName, newName string) (string, error) {
-	var expectedName string
-	expectedName = baseName
-
-	if dc.Cmd.Flag("name").Changed {
-		if cfg.HasEntry(newName) {
-			return "", fmt.Errorf("entry %s already exists, no changes were made", newName)
-		}
-
-		expectedName = newName
-	}
-
-	return expectedName, nil
-}
-
 func (dc *DefaultCommand) initFlags() {
 	dc.Cmd.Flags().StringVarP(&dc.data.Entry.Address, "address", "a", "", "New RCON address")
 	dc.Cmd.Flags().StringVarP(&dc.data.Entry.Password, "password", "p", "", "New RCON password")
