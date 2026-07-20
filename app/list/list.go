@@ -119,7 +119,8 @@ func (lc *ListCommand) getDetailedEntries(cfg *config.Configuration, entries []s
 		}
 	}
 
-	if len(invalidStrings) > 0 {
+	// formatting
+	if len(targetStrings) > 0 && len(invalidStrings) > 0 {
 		invalidStrings[0] = "\n" + invalidStrings[0]
 	}
 
