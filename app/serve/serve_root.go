@@ -3,6 +3,7 @@ package serve
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	ipcexec "github.com/bobllor/rcon-cli/app/serve/exec"
 	"github.com/bobllor/rcon-cli/app/serve/internal"
@@ -35,7 +36,7 @@ type ServeData struct {
 func NewServeCommand(addr, pidFile string, paths paths.AppPath) *ServeCommand {
 	cmd := &ServeCommand{
 		Cmd: &cobra.Command{
-			Use:   "serve [command]",
+			Use:   "serve",
 			Short: "Manage the IPC RCON service",
 			Args:  cobra.NoArgs,
 		},
@@ -55,11 +56,14 @@ func NewServeCommand(addr, pidFile string, paths paths.AppPath) *ServeCommand {
 	cmd.Cmd.AddCommand(execCmd.Cmd)
 
 	cmd.Cmd.Run = cmd.Run
+	cmd.Cmd.PreRun = cmd.PreRun
 	cmd.initFlags()
 
 	return cmd
 }
 
+// Run is the main entry point to ServeCommand. It displays certain methods depending
+// on what flag was set.
 func (sc *ServeCommand) Run(cmd *cobra.Command, args []string) {
 	// alternative way to clean/remove the files in case the original code fails to
 	if sc.data.Clean {
@@ -67,6 +71,14 @@ func (sc *ServeCommand) Run(cmd *cobra.Command, args []string) {
 		for _, err := range errs {
 			fmt.Fprintln(os.Stderr, err)
 		}
+	}
+}
+
+func (sc *ServeCommand) PreRun(cmd *cobra.Command, args []string) {
+	if cmd.Flags().NFlag() == 0 {
+		fmt.Println(strings.TrimSpace(cmd.UsageString()))
+
+		return
 	}
 }
 
