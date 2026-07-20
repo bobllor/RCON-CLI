@@ -5,13 +5,15 @@ set -e
 os=$(uname -s)
 
 file_name=""
+profile_file=".bashrc"
 
 case "$os" in
     Linux)
         file_name="gorcon.linux.amd64.tar.gz"
         ;;
     Darwin):
-        file_name="gorcon.darwin.amd64.tar.gz"
+        file_name="gorcon.darwin.arm64.tar.gz"
+        profile_file=".zshrc"
         ;;
     *)
         echo "OS is unsupported ($os)"
@@ -48,7 +50,7 @@ echo "Extracting $file_name..."
 tar -xzf "$file_name" -C "$HOME/.local/bin"
 echo "Extracted files to $HOME/.local/bin"
 
-bash_file="$HOME/.bashrc"
+bash_file="$HOME/$profile_file"
 
 if [[ -z $(cat "$bash_file" | grep 'export PATH="$PATH:$HOME/.local/bin"') ]]; then
     echo "Configuring PATH..."
