@@ -31,7 +31,7 @@ type ExecData struct {
 func NewExecCommand(appPaths paths.AppPath) *ExecCommand {
 	cmd := ExecCommand{
 		Cmd: &cobra.Command{
-			Use:   "exec",
+			Use:   "exec <args>...",
 			Short: "Execute a command to an RCON server",
 		},
 		Path: appPaths,

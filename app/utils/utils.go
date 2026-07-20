@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net"
 	"os"
+	"os/signal"
 	"strings"
 	"syscall"
 
@@ -51,7 +52,24 @@ func ReadInput() (string, error) {
 // readInputHidden reads the STDIN with a hidden input and
 // returns the given input.
 func ReadInputHidden() (string, error) {
-	b, err := term.ReadPassword(int(syscall.Stdin))
+	stdin := int(syscall.Stdin)
+	baseState, err := term.GetState(stdin)
+	if err != nil {
+		return "", err
+	}
+
+	// handles termination to restore echo
+	sigch := make(chan os.Signal, 1)
+	signal.Notify(sigch, os.Interrupt)
+	go func() {
+		for range sigch {
+			term.Restore(stdin, baseState)
+			os.Exit(1)
+		}
+	}()
+
+	// Windows requires syscall.Stdin, works on unix as well
+	b, err := term.ReadPassword(stdin)
 	if err != nil {
 		return "", err
 	}

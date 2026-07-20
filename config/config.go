@@ -2,7 +2,6 @@ package config
 
 import (
 	"errors"
-	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
@@ -61,7 +60,6 @@ func LoadConfigurationIfMissing(root string) (*Configuration, error) {
 		if writeErr != nil {
 			return nil, writeErr
 		}
-		fmt.Printf("Created configuration file at %s\n", path)
 	} else if err != nil {
 		return nil, err
 	}
@@ -77,11 +75,19 @@ func NewConfiguration() *Configuration {
 	}
 }
 
-// WriteFile writes the current data structure into the YAML path.
+// WriteFile writes the Configuration data into a given root path. It will
+// create a swap file and rename to the value of DEFAULT_YAML_NAME.
 //
-// All data in the original file will be overwritten if this is called.
+// If the root path does not exist, then it will be created.
+//
+// All data in the original file will be overwritten if successful.
 func (c *Configuration) WriteFile(root string) error {
 	b, err := yaml.Marshal(c)
+	if err != nil {
+		return err
+	}
+
+	err = os.MkdirAll(root, 0o700)
 	if err != nil {
 		return err
 	}

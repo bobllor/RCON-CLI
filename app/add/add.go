@@ -59,6 +59,12 @@ func (ac *AddCommand) Run(cmd *cobra.Command, args []string) {
 	if len(args) > 0 {
 		ac.Data.Name = strings.Join(args, " ")
 	}
+
+	// default/DEFAULT or whatever combination is reserved and cannot be used
+	if strings.TrimSpace(strings.ToLower(ac.Data.Name)) == "default" {
+		utils.PrintFatalString("cannot use reserved word 'default' as an RCON entry name")
+	}
+
 	err := ac.initData()
 	if err != nil {
 		utils.PrintFatal(err)
