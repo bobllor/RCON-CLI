@@ -71,6 +71,9 @@ gorcon serve exec unban Notch
     - [Linux/macOS](#linuxmacos)
     - [Windows](#windows)
     - [Manual](#manual)
+- [Uninstall](#uninstall)
+    - [Linux/macOS](#uninstall-linuxmacos)
+    - [Windows](#uninstall-windows)
 - [Profiles](#profiles)
     - [Named Server Profiles](#named-server-profiles)
     - [Adding Profiles](#adding-profiles)
@@ -98,16 +101,18 @@ required for the installation script:
 
 On modern OSes, these will already be included.
 
+Simply copy and paste the commands to your respective terminal.
+
 ## Linux/macOS
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/bobllor/rcon/refs/heads/main/install.sh)
+bash <(curl -s "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/install.sh")
 ```
 
 ## Windows
 
 ```powershell
-# WIP
+& { Invoke-Expression (Invoke-WebRequest "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/install.ps1" -UseBasicParsing) }
 ```
 
 ## Manual
@@ -121,6 +126,25 @@ Usage of `gorcon` is expected to be *through a terminal session*. How to use it 
 dependent on your preference, such as setting the PATH variable or storing
 it in a folder to use.
 - It is recommended to use the installation scripts as this is handled for you
+
+# Uninstall
+
+Similar to the installation scripts, there is an *automatic uninstall script* that
+will be used. The same requirements are needed to run the commands below:
+- Linux/macOS: `curl`, `tar`
+- Windows: `curl`/`Invoke-WebRequest`
+
+## Uninstall Linux/macOS
+
+```bash
+bash <(curl -s "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/uninstall.sh")
+```
+
+## Uninstall Windows
+
+```powershell
+& { Invoke-Expression (Invoke-WebRequest "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/uninstall.ps1" -UseBasicParsing) }
+```
 
 
 # Profiles
@@ -171,14 +195,14 @@ Some caveats:
 - Arguments and the `-n/--name` flag cannot be used together 
 - The *password cannot be empty*, but interactive mode can be triggered by 
 not using `-p/--password` or passing the string `-`
+- The name `default` is reserved, and *cannot be used* as a profile name
 
 *Named conflicts* can occur if attempting to add an existing profile entry. By default, it
 will *prevent duplicate profiles* from being added.
 This can be bypassed with the `--overwrite` flag, which will replace the original profile
 in the configuration.
-- This will do nothing if the new profiles are unique
 
-> This is a destructive action and will permanently remove the original profile.
+> `--overwrite` is a destructive action and will permanently remove the original profile.
 
 ```bash
 # upon success it will overwrite the original entry if it exists
@@ -196,13 +220,22 @@ The following values are allowed for profile editing:
 
 Basic use: `gorcon edit <entry> [flags...]`
 
-The flag `--rm-default` is used to remove the current default profile. This must be used
-without any arguments, otherwise an error will occur.
+Only one edit can occur at a time. Additionally, there must be *at least one flag
+used* with the command.
+If *interactive mode* is preferred, pass in the string `-` to a flag value to trigger
+the mode.
+- This is recommended to be used for changing passwords
+
+There is a subcommand `gorcon edit default` that works similiar to `gorcon edit`, except this
+command *automatically targets the default profile*. There must be a default profile entry for this to be used.
+- Useful for if you need to modify the default RCON profile without having to remember the name
+
+> If you are changing the RCON entry profile name and it is also the default RCON profile,
+> *it will automatically update the default profile to the new name chosen*.
+>
+> For example, `defaultRCON = defaultName` -> `newName -> aNewName` -> `defaultRCON = aNewName`.
 
 For more flags, run `gorcon edit -h`.
-
-At least one flag must be used, otherwise an error will occur. 
-*Interactive mode is not available* for editing profiles.
 
 ```bash
 # name MyServer -> YourServer
