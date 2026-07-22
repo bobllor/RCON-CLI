@@ -60,4 +60,4 @@ if(Test-Path "$tempPath"){
 
 echo ""
 echo "Successfully installed!"
-echo 'Open a new terminal to load the updated PATH and run "gorcon" to get started'
+echo 'Open a new terminal and run "gorcon" to get started'
