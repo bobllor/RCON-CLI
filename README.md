@@ -100,18 +100,19 @@ required for the installation script:
 - Windows: `curl`/`Invoke-WebRequest`
 
 On modern OSes, these will already be included.
-Simply copy and paste the commands below to run the installation script.
+
+Simply copy and paste the commands to your respective terminal.
 
 ## Linux/macOS
 
 ```bash
-bash <(curl -s https://raw.githubusercontent.com/bobllor/rcon/refs/heads/main/install.sh)
+bash <(curl -s "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/install.sh")
 ```
 
 ## Windows
 
 ```powershell
-# WIP
+& { Invoke-Expression (Invoke-WebRequest "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/install.ps1" -UseBasicParsing) }
 ```
 
 ## Manual
@@ -133,15 +134,17 @@ will be used. The same requirements are needed to run the commands below:
 - Linux/macOS: `curl`, `tar`
 - Windows: `curl`/`Invoke-WebRequest`
 
-Simply copy and paste the command in your respective terminal.
-
 ## Uninstall Linux/macOS
 
-WIP
+```bash
+bash <(curl -s "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/uninstall.sh")
+```
 
 ## Uninstall Windows
 
-WIP
+```powershell
+& { Invoke-Expression (Invoke-WebRequest "https://raw.githubusercontent.com/bobllor/RCON-CLI/refs/heads/main/uninstall.ps1" -UseBasicParsing) }
+```
 
 
 # Profiles
