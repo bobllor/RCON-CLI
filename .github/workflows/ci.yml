@@ -1,0 +1,67 @@
+on:
+  push:
+    paths:
+      - "install.ps1"
+      - "uninstall.ps1"
+      - "install.sh"
+      - "uninstall.sh"
+  pull_request:
+    branches:
+      - main
+      - "dev/**"
+    paths:
+      - "install.ps1"
+      - "uninstall.ps1"
+      - "install.sh"
+      - "uninstall.sh"
+  workflow_dispatch:
+
+jobs:
+  linux-testing:
+    name: Linux test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run installer
+        run: ./install.sh
+      - name: Verify installation
+        run: |
+          if ! gorcon -v; then
+            echo "Failed to install gorcon"
+            exit 1
+          fi
+      - name: Run uninstall
+        run: ./uninstall.sh
+      - name: Verify uninstall
+        run: |
+          if gorcon -v; then
+            echo "Failed to uninstall gorcon"
+            exit 2
+          fi
+  windows-testing:
+    name: Windows test
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v6
+      - name: Run installer
+        run: ./install.ps1
+      - name: Verify installation
+        run: |
+          $paths = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+          $gorconPath = "$env:localappdata\programs\gorcon\gorcon.exe"
+
+          if(("$paths" -notlike "*gorcon*") -and -not (test-path "$gorconPath")){
+            echo "Failed to install gorcon"
+            exit 1 
+          }
+      - name: Run uninstall
+        run: ./uninstall.ps1
+      - name: Verify uninstall
+        run: |
+          $paths = [System.Environment]::GetEnvironmentVariable("PATH", "User")
+          $gorconPath = "$env:localappdata\programs\gorcon\gorcon.exe"
+
+          if(("$paths" -like "*gorcon*") -and (test-path "$gorconPath")){
+            echo "Failed to uninstall gorcon"
+            exit 1
+          }
