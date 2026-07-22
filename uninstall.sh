@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+# Removes the gorcon binary.
+
 set -e
 
 file="gorcon"

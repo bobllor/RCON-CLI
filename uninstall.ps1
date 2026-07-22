@@ -1,6 +1,9 @@
 <#
     .DESCRIPTION
     Uninstall gorcon and remove the PATH from the device.
+
+    .AUTHOR
+    bobllor
 #>
 
 $appPath = "$env:localappdata"
