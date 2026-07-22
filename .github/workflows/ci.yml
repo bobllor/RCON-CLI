@@ -25,12 +25,19 @@ jobs:
       - name: Run installer
         run: ./install.sh
       - name: Verify installation
-        run: gorcon -v || echo "Failed to install gorcon"; exit 1
+        run: |
+          if ! gorcon -v; then
+            echo "Failed to install gorcon"
+            exit 1
+          fi
       - name: Run uninstall
         run: ./uninstall.sh
       - name: Verify uninstall
         run: |
-          gorcon -v && echo "Failed to uninstall gorcon"; exit 1
+          if gorcon -v; then
+            echo "Failed to uninstall gorcon"
+            exit 2
+          fi
   windows-testing:
     name: Windows test
     runs-on: windows-latest
