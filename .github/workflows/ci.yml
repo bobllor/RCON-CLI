@@ -5,6 +5,8 @@ on:
       - "uninstall.ps1"
       - "install.sh"
       - "uninstall.sh"
+    tags:
+      - "v*.*.*"
   pull_request:
     branches:
       - main
