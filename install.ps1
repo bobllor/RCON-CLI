@@ -24,7 +24,7 @@ if(!(Test-Path "$tempPath")){
 # user logging
 echo "Downloading $fileName..."
 try{
-    Invoke-WebRequest -uri "$url" -usebasicparsing -o "$tempPath\$fileName"
+    Invoke-WebRequest -uri "$url" -usebasicparsing -outfile "$tempPath\$fileName"
 }catch{
     Write-Error $_
     exit 1
