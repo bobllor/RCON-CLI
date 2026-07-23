@@ -244,8 +244,11 @@ gorcon edit MyServer -n YourServer
 # new address, password, and new default profile
 gorcon edit Server01 -a 127.0.0.1:28383 -p NewPassword --default
 
+# changes the default entry's address
+gorcon edit default -a 0.0.0.0:23333
+
 # removes the current default profile
-gorcon edit --rm-default
+gorcon edit default --remove
 ```
 
 Similar to adding an entry, names *must be unique*. If a new name conflicts with
@@ -258,10 +261,10 @@ To remove a profile:
 
 ```bash
 # removes MyServer1
-gorcon rm MyServer1
+gorcon remove MyServer1
 
 # removes all servers
-gorcon rm MyServer2 "A Server Here" bigdawg
+gorcon remove MyServer2 "A Server Here" bigdawg
 ```
 
 
