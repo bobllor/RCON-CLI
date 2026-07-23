@@ -54,14 +54,15 @@ the direct mode should be the *preferred option*.
     <summary>Quickstart</summary>
 
 ```bash
-# direct mode
-gorcon exec say Hello world!
-gorcon exec op Notch
-gorcon exec ban Notch
+# adding a new default profile
+gorcon add server01 -a 0.0.0.0:12345 -p anExamplePassword --default
 
-# service mode
-gorcon serve exec say sorry!
-gorcon serve exec unban Notch
+# running a command, sent to the default profile by default
+gorcon exec say Hello world!
+
+# run commands to different servers via profile or address + password
+gorcon exec -t server02 deop Notch
+gorcon exec -a 10.0.0.1:12345 -p anExamplePassword say Hello World!
 ```
 </details>
 
